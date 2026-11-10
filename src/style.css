@@ -61,9 +61,9 @@ kbd { font: 10px var(--mono); border: 1px solid currentColor; padding: 2px 3px; 
 .current-file { flex: 1; min-width: 0; margin-left: 10px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .document-actions { display: flex; align-items: center; gap: 5px; }
 .app-menu { position: relative; flex-shrink: 0; }
-.app-menu summary { cursor: pointer; list-style: none; user-select: none; }
+.app-menu summary { display: flex; align-items: center; gap: 6px; cursor: pointer; list-style: none; user-select: none; }
 .app-menu summary::-webkit-details-marker { display: none; }
-.app-menu summary span { margin-left: 5px; color: var(--muted); }
+.app-menu summary svg { width: 10px; height: 10px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.2; color: var(--muted); }
 .menu-panel {
   position: absolute; z-index: 10; top: calc(100% + 4px); left: 0; width: 228px;
   padding: 5px; border: 1px solid var(--line); border-radius: 8px;
