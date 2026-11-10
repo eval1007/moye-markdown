@@ -4,6 +4,8 @@
 
 首个公开版本，面向 Windows x64。
 
+- Windows 安装器可以选择仅为当前用户安装，或为所有用户安装到 Program Files；重装沿用原范围和目录。
+
 - 打开本地或 WSL 的 Markdown 文件和文件夹，按文件树切换文档，保留最近打开历史。
 - WSL 路径输入支持建议和键盘补全，也接受 UNC 路径。
 - Mermaid ER 图默认适应正文宽度，支持原始大小、放大、拖动和布局切换，内置 JetBrains Mono。

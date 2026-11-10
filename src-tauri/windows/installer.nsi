@@ -124,7 +124,8 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
     !define MULTIUSER_USE_PROGRAMFILES64
   !endif
   !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${UNINSTKEY}"
-  !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "CurrentUser"
+  ; The first release wrote UninstallString but had no install-mode marker.
+  !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
   !define MULTIUSER_INSTALLMODEPAGE_SHOWUSERNAME
   !define MULTIUSER_INSTALLMODE_FUNCTION RestorePreviousInstallLocation
   !define MULTIUSER_EXECUTIONLEVEL Highest
@@ -532,6 +533,15 @@ Function .onInit
 
   !insertmacro SetContext
 
+  !if "${INSTALLMODE}" == "both"
+    ; MultiUser sets a scope-specific directory; preserve an explicit /D override.
+    Push $INSTDIR
+    !insertmacro MULTIUSER_INIT
+    Pop $4
+    ${If} $4 != "${PLACEHOLDER_INSTALL_DIR}"
+      StrCpy $INSTDIR $4
+    ${EndIf}
+  !else
   ${If} $INSTDIR == "${PLACEHOLDER_INSTALL_DIR}"
     ; Set default install location
     !if "${INSTALLMODE}" == "perMachine"
@@ -552,10 +562,6 @@ Function .onInit
 
     Call RestorePreviousInstallLocation
   ${EndIf}
-
-
-  !if "${INSTALLMODE}" == "both"
-    !insertmacro MULTIUSER_INIT
   !endif
 
   ; Abort downgrades if they are disabled, in the modes that skip the reinstall page choice:
@@ -751,7 +757,11 @@ Section Install
   WriteRegStr SHCTX "${UNINSTKEY}" "DisplayVersion" "${VERSION}"
   WriteRegStr SHCTX "${UNINSTKEY}" "Publisher" "${MANUFACTURER}"
   WriteRegStr SHCTX "${UNINSTKEY}" "InstallLocation" "$\"$INSTDIR$\""
-  WriteRegStr SHCTX "${UNINSTKEY}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+  !if "${INSTALLMODE}" == "both"
+    WriteRegStr SHCTX "${UNINSTKEY}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\" /$MultiUser.InstallMode"
+  !else
+    WriteRegStr SHCTX "${UNINSTKEY}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+  !endif
   WriteRegDWORD SHCTX "${UNINSTKEY}" "NoModify" "1"
   WriteRegDWORD SHCTX "${UNINSTKEY}" "NoRepair" "1"
 
@@ -806,6 +816,16 @@ Function un.onInit
 
   !if "${INSTALLMODE}" == "both"
     !insertmacro MULTIUSER_UNINIT
+    ; A manually launched uninstaller must affect the scope of its own directory.
+    ReadRegStr $0 HKCU "${MANUPRODUCTKEY}" ""
+    ${If} $INSTDIR == $0
+      Call un.MultiUser.InstallMode.CurrentUser
+    ${Else}
+      ReadRegStr $0 HKLM "${MANUPRODUCTKEY}" ""
+      ${If} $INSTDIR == $0
+        Call un.MultiUser.InstallMode.AllUsers
+      ${EndIf}
+    ${EndIf}
   !endif
 
   !insertmacro MUI_UNGETLANGUAGE
@@ -913,6 +933,11 @@ Section Uninstall
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "${PRODUCTNAME}"
   ${EndIf}
 
+  ; Hooks must run before app-data cleanup switches to the current user's shell context.
+  !ifmacrodef NSIS_HOOK_POSTUNINSTALL
+    !insertmacro NSIS_HOOK_POSTUNINSTALL
+  !endif
+
   ; Delete app data if the checkbox is selected
   ; and if not updating
   ${If} $DeleteAppDataCheckboxState = 1
@@ -930,10 +955,6 @@ Section Uninstall
     RmDir /r "$APPDATA\${BUNDLEID}"
     RmDir /r "$LOCALAPPDATA\${BUNDLEID}"
   ${EndIf}
-
-  !ifmacrodef NSIS_HOOK_POSTUNINSTALL
-    !insertmacro NSIS_HOOK_POSTUNINSTALL
-  !endif
 
   ; Auto close if passive mode or updating
   ${If} $PassiveMode = 1

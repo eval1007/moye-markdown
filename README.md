@@ -11,7 +11,7 @@ Moye is a local Markdown reader for Windows with WSL folder browsing, Mermaid an
 ## 使用
 
 - Windows 10/11 x64，使用 WebView2 Runtime。
-- 首次安装默认使用 `%LOCALAPPDATA%\Programs\Moye`，无需管理员权限，可在安装器中更改目录。重装时默认使用上次的安装目录。
+- 安装时可选择「只为我自己安装」（默认目录 `%LOCALAPPDATA%\Programs\Moye`）或「为本机所有用户安装」（默认目录 `%ProgramFiles%\Moye`，需要管理员权限）。两种模式都能修改目录。升级时默认沿用已安装的范围和目录；想切换范围，建议先卸载旧版并保留应用数据。
 - 安装后可在文件管理器用「打开方式 → Moye」打开 Markdown。系统默认关联由用户选择。
 - 窗口内可用「打开文件」、Ctrl+O 或拖放。支持 UTF-8 的 `.md`、`.markdown`、`.mdown`。
 - 「打开文件夹」显示左侧文件树，点击 Markdown 文件后在右侧阅读。点「WSL 路径」可选择发行版并输入 Linux 绝对路径，也可粘贴 WSL 的 Windows 网络路径。输入时列出匹配的文件夹和 Markdown 文件；可点击或用方向键配合 Enter / Tab 补全，再点「打开」。
