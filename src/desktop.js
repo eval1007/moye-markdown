@@ -1,11 +1,16 @@
 import { invoke, isTauri } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { open } from '@tauri-apps/plugin-dialog';
 import { openUrl } from '@tauri-apps/plugin-opener';
 
 export const desktop = isTauri();
 const markdownExtensions = ['md', 'markdown', 'mdown'];
+
+export function setWindowTitle(title) {
+  return getCurrentWindow().setTitle(title);
+}
 
 export async function pickDocument() {
   const path = await open({

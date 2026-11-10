@@ -1,6 +1,6 @@
 # 墨页 Moye · Windows Markdown Reader
 
-Windows 本地 Markdown 阅读器。打开或拖入 Markdown 文件或文件夹，阅读带目录、表格、相对图片和 Mermaid 图的文档。点击内嵌图可在独立画布中缩放、拖动和适应窗口。可按图切换 Dagre/ELK。ER 图默认适应正文宽度，可切到原始大小或放大查看。主题和最近打开的文件/文件夹路径仅保存在本机，文档始终以只读方式打开。
+Windows 本地 Markdown 阅读器。打开或拖入 Markdown 文件或文件夹，阅读带目录、表格、相对图片和 Mermaid 图的文档。图表默认采用蓝色节点和细灰连线，流程图与 ER 图默认使用 ELK；可切到原始大小，或在大图中缩放、拖动和适应窗口。主题和最近打开的文件/文件夹路径仅保存在本机，文档始终以只读方式打开。
 
 **[下载 Windows x64 版](https://github.com/eval1007/moye-markdown/releases/latest)** · [反馈问题或建议](https://github.com/eval1007/moye-markdown/issues)
 
@@ -13,7 +13,8 @@ Moye is a local Markdown reader for Windows with WSL folder browsing, Mermaid an
 - Windows 10/11 x64，使用 WebView2 Runtime。
 - 安装时可选择「只为我自己安装」（默认目录 `%LOCALAPPDATA%\Programs\Moye`）或「为本机所有用户安装」（默认目录 `%ProgramFiles%\Moye`，需要管理员权限）。两种模式都能修改目录。升级时默认沿用已安装的范围和目录；想切换范围，建议先卸载旧版并保留应用数据。
 - 安装后可在文件管理器用「打开方式 → Moye」打开 Markdown。系统默认关联由用户选择。
-- 窗口内可用「打开文件」、Ctrl+O 或拖放。支持 UTF-8 的 `.md`、`.markdown`、`.mdown`。
+- 左上角「文件」菜单提供打开文件、打开文件夹、WSL 路径和最近打开；也可用 Ctrl+O 或拖放。支持 UTF-8 的 `.md`、`.markdown`、`.mdown`。右上角「更多」菜单设置外观。
+- 顶部显示当前文档的相对路径，完整路径可悬停查看。点击侧栏图标或按 Ctrl+B 可以收起 / 展开文件树和目录。
 - 「打开文件夹」显示左侧文件树，点击 Markdown 文件后在右侧阅读。点「WSL 路径」可选择发行版并输入 Linux 绝对路径，也可粘贴 WSL 的 Windows 网络路径。输入时列出匹配的文件夹和 Markdown 文件；可点击或用方向键配合 Enter / Tab 补全，再点「打开」。
 - 相对图片和 Markdown 链接以当前文档所在目录解析，允许读取已打开的根目录内的文件；没有打开根目录时限于当前文档目录。外部链接交给默认浏览器。预览不加载远程图片。
 - 阅读时用 Ctrl+F 查找当前正文，Enter / Shift+Enter 跳到下一处 / 上一处。打开文件夹后用 Ctrl+P 搜文件名或相对路径、Ctrl+Shift+F 搜 Markdown 正文，也可从文件树点击「搜索文件夹」。打开结果会展开文件树中的对应路径；正文命中会跳到相应内容块并高亮可见文字。文件夹搜索在本地执行，最多显示前 100 条结果，跳过隐藏目录和 node_modules。
@@ -28,7 +29,7 @@ npm run tauri dev
 npm run tauri build
 ```
 
-`npm run dev` 也可单独检查阅读界面；浏览器模式不能读取用户所选 Markdown 的同目录图片，也没有 Windows 文件关联。用内置示例可验证图表和图片。Windows 安装包由 Tauri 生成，包含渲染依赖，无需在线图表服务。ER 图使用随应用打包的 [JetBrains Mono v2.304](https://github.com/JetBrains/JetBrainsMono/releases/tag/v2.304)（[SIL OFL 1.1](public/licenses/JetBrainsMono-OFL.txt)），中文使用系统字体。
+`npm run dev` 也可单独检查阅读界面；浏览器模式不能读取用户所选 Markdown 的同目录图片，也没有 Windows 文件关联。用内置示例可验证图表和图片。Windows 安装包由 Tauri 生成，包含渲染依赖，无需在线图表服务。Mermaid 图使用随应用打包的 [JetBrains Mono v2.304](https://github.com/JetBrains/JetBrainsMono/releases/tag/v2.304)（[SIL OFL 1.1](public/licenses/JetBrainsMono-OFL.txt)），中文使用系统字体。图的显式样式、方向和分组仍由源文件定义。
 
 源文件按职责分布在 `src/markdown.js`（解析）、`src/diagrams.js`（图表主题和 SVG）、`src/zoom.js`（大图）、`src/main.js`（阅读界面）和 `src-tauri/src/main.rs`（本地文件与启动请求）。
 

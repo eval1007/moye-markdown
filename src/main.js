@@ -1,10 +1,11 @@
 import './style.css';
 import sampleText from '../samples/reading-demo.md?raw';
 import sampleImage from '../samples/reader-mark.svg?url';
-import { connectDesktop, desktop, launchExternal, openPath, openRelated, openTreeDocument, pickDocument, pickFolder, readImage } from './desktop.js';
+import { connectDesktop, desktop, launchExternal, openPath, openRelated, openTreeDocument, pickDocument, pickFolder, readImage, setWindowTitle } from './desktop.js';
 import { FileTree } from './file-tree.js';
 import { mountWslPicker } from './wsl-picker.js';
 import { diagramType, renderDiagram, svgUrl } from './diagrams.js';
+import { mountAppMenus } from './app-menus.js';
 import { RecentPaths } from './recents.js';
 import { localReference, renderMarkdown } from './markdown.js';
 import { closeDiagram, showDiagram } from './zoom.js';
@@ -29,6 +30,7 @@ let current = null;
 let panels = [];
 let folder = null;
 let sidebarMode = 'files';
+let sidebarCollapsed = false;
 let outlineCount = 0;
 const recents = new RecentPaths();
 const fileTree = new FileTree($('#file-tree'), (path, folderId) => {
@@ -38,6 +40,11 @@ const fileTree = new FileTree($('#file-tree'), (path, folderId) => {
 function report(message = '') {
   notice.textContent = message;
   notice.hidden = !message;
+}
+
+function updateTitle(title) {
+  document.title = title;
+  if (desktop) setWindowTitle(title).catch((error) => report(errorText(error)));
 }
 
 function themeValue() {
@@ -174,7 +181,14 @@ function mountDiagram(figure, source, index, version) {
 function updateSidebar() {
   const inFolder = Boolean(folder);
   const showFiles = inFolder && sidebarMode === 'files';
-  $('#sidebar').hidden = !inFolder && !outlineCount;
+  const available = inFolder || outlineCount > 0;
+  const visible = available && !sidebarCollapsed;
+  $('#sidebar').hidden = !visible;
+  const toggle = $('#toggle-sidebar');
+  toggle.disabled = !available;
+  toggle.setAttribute('aria-expanded', String(visible));
+  toggle.setAttribute('aria-label', visible ? '收起侧栏' : '展开侧栏');
+  toggle.title = (visible ? '收起侧栏' : '展开侧栏') + ' (Ctrl+B)';
   $('#sidebar-tabs').hidden = !inFolder;
   $('#tree-pane').hidden = !showFiles;
   $('#outline-pane').hidden = showFiles;
@@ -196,14 +210,15 @@ function showFolder(next) {
   $('#outline').replaceChildren();
   outlineCount = 0;
   folder = next;
+  sidebarCollapsed = false;
   sidebarMode = 'files';
   fileTree.setFolder(next);
   recents.add({ kind: 'folder', path: next.id, name: next.name });
   $('#folder-name').textContent = next.name;
   $('#folder-name').title = next.path;
-  $('#file-name').textContent = next.name;
-  $('#file-name').title = next.path;
-  document.title = next.name + ' · 墨页';
+  $('#file-name').textContent = '选择文档';
+  $('#file-name').removeAttribute('title');
+  updateTitle(next.name + ' · 墨页');
   $('#empty').hidden = false;
   $('#empty-title').textContent = '从左侧选择文档';
   $('#empty-description').textContent = '展开文件夹，点击 Markdown 文件即可阅读。';
@@ -234,9 +249,9 @@ function showDocument(doc, anchor) {
   article.replaceChildren(template.content);
   article.hidden = false;
   $('#empty').hidden = true;
-  $('#file-name').textContent = doc.name;
-  $('#file-name').title = doc.name;
-  document.title = `${doc.name} · 墨页`;
+  $('#file-name').textContent = doc.workspacePath || doc.name;
+  $('#file-name').title = doc.documentId || doc.name;
+  updateTitle(`${doc.name} · 墨页`);
   report('');
 
   const outline = $('#outline');
@@ -349,6 +364,7 @@ const showWorkspaceSearch = mountWorkspaceSearch($('#search-dialog'), () => fold
   if (scope !== folder) return false;
   if (!await load(() => openTreeDocument(match.path, scope.id), null, onError)) return false;
   sidebarMode = 'files';
+  sidebarCollapsed = false;
   updateSidebar();
   fileTree.reveal(match.path);
   if (match.line) readerFind.show(query, match.line);
@@ -374,6 +390,8 @@ article.addEventListener('click', (event) => {
 });
 
 $('#open-file').onclick = chooseFile;
+mountAppMenus(document.querySelector('.topbar'));
+$('#toggle-sidebar').onclick = () => { sidebarCollapsed = !sidebarCollapsed; updateSidebar(); };
 $('#empty-open').onclick = chooseFile;
 $('#open-folder').onclick = $('#empty-folder').onclick = () => load(pickFolder);
 $('#open-wsl').onclick = showWslDialog;
@@ -384,12 +402,16 @@ $('#show-outline').onclick = () => { sidebarMode = 'outline'; updateSidebar(); }
 $('#open-sample').onclick = () => load(() => ({ name: '阅读示例.md', text: sampleText, sample: true }));
 fileInput.onchange = () => { openBrowserFile(fileInput.files[0]); fileInput.value = ''; };
 document.addEventListener('keydown', (event) => {
+  if (event.defaultPrevented) return;
   const modifier = event.ctrlKey || event.metaKey;
   const key = event.key.toLowerCase();
   const modal = document.querySelector('dialog[open]');
   if (modifier && key === 'o') {
     event.preventDefault();
     chooseFile();
+  } else if (!modal && modifier && key === 'b' && !$('#toggle-sidebar').disabled) {
+    event.preventDefault();
+    $('#toggle-sidebar').click();
   } else if (!modal && modifier && key === 'f' && !event.shiftKey && current) {
     event.preventDefault();
     readerFind.show();
