@@ -26,6 +26,7 @@ struct Workspace {
 struct ReaderState {
     workspace: Mutex<Workspace>,
     pending: Mutex<Option<PathBuf>>,
+    search: search::Service,
 }
 
 /// Carries Markdown and the paths used to identify the document and select it in the tree.
@@ -205,17 +206,34 @@ async fn suggest_wsl_paths(directory: PathBuf, prefix: String) -> Result<Vec<Ent
     }).await.map_err(|_| "无法读取 WSL 目录。")?
 }
 
-/// Searches Markdown paths or contents in the currently open folder.
+/// Streams matching Markdown paths or source lines for the active folder.
 #[tauri::command]
 async fn search_workspace(
-    folder_id: String, query: String, contents: bool, state: State<'_, ReaderState>,
-) -> Result<search::SearchResults, String> {
+    folder_id: String, query: String, contents: bool, request_id: u64,
+    on_batch: tauri::ipc::Channel<search::SearchResults>, app: tauri::AppHandle,
+) -> Result<(), String> {
+    let state = app.state::<ReaderState>();
     let root = {
         let workspace = state.workspace.lock().map_err(|_| "无法搜索文件夹。")?;
         folder_root(&workspace, &folder_id)?.to_owned()
     };
-    tauri::async_runtime::spawn_blocking(move || search::run(&root, &query, contents))
-        .await.map_err(|_| "无法搜索文件夹。".into())
+    let cancel = state.search.start(request_id);
+    tauri::async_runtime::spawn_blocking(move || {
+        let state = app.state::<ReaderState>();
+        search::run(&state.search, &root, &query, contents, &cancel, |batch| on_batch.send(batch).is_ok())
+    }).await.map_err(|_| "无法搜索文件夹。".to_string())?
+}
+
+/// Cancels only the named request, so late cancellation cannot stop its replacement.
+#[tauri::command]
+fn cancel_search(request_id: u64, state: State<'_, ReaderState>) {
+    state.search.cancel(request_id);
+}
+
+/// Revalidates cached filenames when opening search, including on WSL shares.
+#[tauri::command]
+fn refresh_search(state: State<'_, ReaderState>) {
+    state.search.invalidate();
 }
 
 /// Opens a Markdown leaf from the selected folder, preserving the root.
@@ -299,7 +317,7 @@ fn main() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             open_path, list_folder, open_tree_document, open_related_document, read_image,
-            wsl_distributions, suggest_wsl_paths, search_workspace, take_pending_path
+            wsl_distributions, suggest_wsl_paths, search_workspace, cancel_search, refresh_search, take_pending_path
         ])
         .run(tauri::generate_context!())
         .expect("could not start Moye reader");

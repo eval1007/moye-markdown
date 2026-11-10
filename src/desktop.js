@@ -1,4 +1,4 @@
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { Channel, invoke, isTauri } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -45,8 +45,18 @@ export function suggestWslPaths(directory, prefix) {
   return invoke('suggest_wsl_paths', { directory, prefix });
 }
 
-export function searchWorkspace(folderId, query, contents) {
-  return invoke('search_workspace', { folderId, query, contents });
+export function searchWorkspace(folderId, query, contents, requestId, onBatch) {
+  const channel = new Channel();
+  channel.onmessage = onBatch;
+  return invoke('search_workspace', { folderId, query, contents, requestId, onBatch: channel });
+}
+
+export function cancelSearch(requestId) {
+  return invoke('cancel_search', { requestId });
+}
+
+export function refreshSearch() {
+  return invoke('refresh_search');
 }
 
 export function openRelated(path, documentId) {
