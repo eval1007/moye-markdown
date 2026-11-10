@@ -147,10 +147,9 @@ kbd { font: 10px var(--mono); border: 1px solid currentColor; padding: 2px 3px; 
 .diagram-controls { display: flex; align-items: center; gap: 6px; font-size: 12px; }
 .diagram-controls button { min-height: 30px; padding: 5px 9px; }
 #zoom-value { min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
-.diagram-viewport { flex: 1; min-height: 0; min-width: 0; overflow: auto; background: var(--soft); cursor: grab; touch-action: none; }
+.diagram-viewport { flex: 1; min-height: 0; min-width: 0; position: relative; overflow: clip; background: var(--soft); cursor: grab; touch-action: none; user-select: none; }
 .diagram-viewport:active { cursor: grabbing; }
-.diagram-stage { min-width: 100%; min-height: 100%; width: max-content; display: grid; place-items: center; position: relative; padding: 24px; }
-#diagram-image { display: block; max-width: none; user-select: none; pointer-events: none; }
+#diagram-image { position: absolute; top: 0; left: 0; display: block; max-width: none; pointer-events: none; }
 .diagram-tip { flex: 1; font-size: 11px; color: var(--muted); margin: 0; }
 @media (max-width: 770px) { .diagram-tip { display: none; } }
 .drop-target {
