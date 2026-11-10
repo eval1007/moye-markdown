@@ -1,6 +1,6 @@
 # 墨页 Moye · Windows Markdown Reader
 
-Windows 本地 Markdown 阅读器。打开或拖入 Markdown 文件或文件夹，阅读带目录、表格、相对图片和 Mermaid 图的文档。图表默认采用蓝色节点和细灰连线，流程图与 ER 图默认使用 ELK；可切到原始大小，或在大图中缩放、拖动和适应窗口。主题和最近打开的文件/文件夹路径仅保存在本机，文档始终以只读方式打开。
+Windows 本地 Markdown 阅读器。打开或拖入 Markdown 文件或文件夹，阅读带目录、表格、相对图片和 Mermaid 图的文档。图表默认采用蓝色节点和细灰连线，流程图与 ER 图默认使用 ELK；可切到原始大小，或点击「放大」铺满应用窗口，再缩放、拖动和适应窗口，按 Esc 返回正文。主题和最近打开的文件/文件夹路径仅保存在本机，文档始终以只读方式打开。
 
 **[下载 Windows x64 版](https://github.com/eval1007/moye-markdown/releases/latest)** · [反馈问题或建议](https://github.com/eval1007/moye-markdown/issues)
 
