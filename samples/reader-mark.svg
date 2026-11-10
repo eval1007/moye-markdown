@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="286" height="76" viewBox="0 0 286 76">
+  <rect x=".5" y=".5" width="285" height="75" rx="14" fill="#f1ecfc" stroke="#d8ceef"/>
+  <rect x="16" y="16" width="44" height="44" rx="11" fill="#654db4"/>
+  <path d="M27 44V30l11 8 11-8v14m-23 6h24" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6"/>
+  <text x="77" y="35" font-family="system-ui,sans-serif" font-weight="700" font-size="15" fill="#282143">Moye Reader</text>
+  <text x="77" y="54" font-family="system-ui,sans-serif" font-size="12" fill="#57516a">Local document image</text>
+</svg>

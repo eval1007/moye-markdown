@@ -1,0 +1,19 @@
+[package]
+name = "moye-reader"
+version = "0.0.1"
+license = "MIT"
+description = "Moye local Markdown reader"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+
+[profile.release]
+strip = true

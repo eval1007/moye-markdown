@@ -1,0 +1,13 @@
+{
+  "identifier": "reader",
+  "description": "Open documents and send approved web links to the default browser.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:allow-open",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [{ "url": "https://*" }, { "url": "http://*" }, { "url": "mailto:*" }]
+    }
+  ]
+}

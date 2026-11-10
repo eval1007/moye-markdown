@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>墨页 · Markdown 阅读器</title>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 17V7l6 6 6-6v10M3 20h18"/></svg></span><span>墨页</span></div>
+    <div class="current-file" id="file-name">Markdown 阅读器</div>
+    <div class="toolbar">
+      <label class="theme-control"><span class="sr-only">外观</span><select id="theme"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label>
+      <button id="find-document" title="在当前文档中查找 (Ctrl+F)" hidden>查找</button>
+      <button id="open-recents" hidden>最近打开</button>
+      <button id="open-wsl" hidden>WSL 路径</button>
+      <button id="open-file">打开文件</button>
+      <button id="open-folder" class="primary" hidden>打开文件夹</button>
+      <input id="file-input" type="file" accept=".md,.markdown,.mdown" hidden>
+    </div>
+  </header>
+  <div class="workspace">
+    <aside class="sidebar" id="sidebar" aria-label="文件与目录" hidden>
+      <div class="sidebar-tabs" id="sidebar-tabs" hidden>
+        <button id="show-tree" aria-pressed="true">文件</button>
+        <button id="show-outline" aria-pressed="false">本文目录</button>
+      </div>
+      <section id="tree-pane" hidden>
+        <div class="sidebar-label" id="folder-name"></div>
+        <button id="open-folder-search" title="搜索文件夹正文 (Ctrl+Shift+F)">搜索文件夹</button>
+        <div id="file-tree" aria-label="Markdown 文件树"></div>
+      </section>
+      <section id="outline-pane">
+        <div class="sidebar-label" id="outline-label">本文目录</div>
+        <nav id="outline" aria-label="本文目录"></nav>
+      </section>
+    </aside>
+    <main id="reader" tabindex="-1">
+      <div id="document-find" role="search" aria-label="当前文档" hidden>
+        <input id="find-query" type="search" autocomplete="off" placeholder="在当前文档中查找" aria-label="查找内容">
+        <output id="find-count" aria-live="polite"></output>
+        <button id="find-prev" title="上一个 (Shift+Enter)" aria-label="上一个">↑</button>
+        <button id="find-next" title="下一个 (Enter)" aria-label="下一个">↓</button>
+        <button id="find-close" aria-label="关闭查找">关闭</button>
+      </div>
+      <div class="notice" id="notice" role="status" hidden></div>
+      <section class="empty" id="empty">
+        <div class="empty-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 12h28v24H10zM15 28v-8l5 5 5-5v8m6-8v8m-3-3 3 3 3-3"/></svg></div>
+        <p class="eyebrow">本地 Markdown 阅读器</p>
+        <h1 id="empty-title">打开一份文档</h1>
+        <p id="empty-description">拖入 Markdown 文件，阅读正文、图片和 Mermaid 图。</p>
+        <div class="empty-actions" id="empty-actions"><button id="empty-folder" class="primary" hidden>选择文件夹</button><button id="empty-open">选择文件</button><button id="open-sample">查看示例</button></div>
+      </section>
+      <article id="article" class="prose" hidden></article>
+    </main>
+  </div>
+  <div id="drop-target" class="drop-target" hidden><div>松开以打开文件或文件夹</div></div>
+  <dialog id="search-dialog" aria-labelledby="search-title">
+    <form>
+      <div class="recents-header"><h2 id="search-title">搜索文件夹</h2><button id="search-close" type="button">关闭</button></div>
+      <p id="search-scope"></p>
+      <div class="search-fields">
+        <select id="search-mode" aria-label="搜索类型"><option value="contents">正文</option><option value="filename">文件名</option></select>
+        <input id="search-query" type="search" required autocomplete="off" autofocus placeholder="输入关键词" aria-label="关键词">
+        <button id="search-submit" class="primary" type="submit">搜索</button>
+      </div>
+      <p id="search-status" role="status"></p>
+      <div id="search-results" aria-label="搜索结果"></div>
+    </form>
+  </dialog>
+  <dialog id="recents-dialog" aria-labelledby="recents-title">
+    <div class="recents-header"><h2 id="recents-title">最近打开</h2><button id="recents-close">关闭</button></div>
+    <div id="recents-list" aria-label="打开历史"></div>
+    <p id="recents-error" role="status" hidden></p>
+    <div class="recents-footer"><button id="clear-recents">清空历史</button></div>
+  </dialog>
+  <dialog id="wsl-dialog" aria-labelledby="wsl-title">
+    <form id="wsl-form">
+      <h2 id="wsl-title">打开 WSL 路径</h2>
+      <label>发行版<select id="wsl-distro"></select></label>
+      <label>文件或文件夹路径<input id="wsl-path" type="text" required placeholder="/home/你的用户名/项目" autocomplete="off" spellcheck="false" autofocus
+        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="wsl-suggestions" aria-describedby="wsl-help"></label>
+      <div class="wsl-suggestion-panel">
+        <ul id="wsl-suggestions" role="listbox" aria-label="匹配的路径" hidden></ul>
+        <p id="wsl-suggestion-status" role="status"></p>
+      </div>
+      <p id="wsl-help">支持 Linux 绝对路径和 Windows 的 WSL 网络路径。</p>
+      <p id="wsl-error" role="status" hidden></p>
+      <div class="dialog-actions"><button id="wsl-cancel" type="button">取消</button><button id="wsl-submit" class="primary" type="submit">打开</button></div>
+    </form>
+  </dialog>
+  <dialog id="diagram-dialog" aria-labelledby="diagram-title">
+    <div class="diagram-toolbar">
+      <h2 id="diagram-title">Mermaid 图</h2>
+      <div class="diagram-controls">
+        <button id="zoom-out" aria-label="缩小">−</button><output id="zoom-value" aria-label="缩放比例">100%</output><button id="zoom-in" aria-label="放大">+</button>
+        <button id="zoom-actual">100%</button><button id="zoom-fit">适应窗口</button><button id="diagram-close" autofocus>关闭 <kbd>Esc</kbd></button>
+      </div>
+    </div>
+    <div id="diagram-viewport" class="diagram-viewport" tabindex="0" aria-label="图表画布">
+      <div id="diagram-stage" class="diagram-stage"><img id="diagram-image" alt="放大的 Mermaid 图"></div>
+    </div>
+    <p class="diagram-tip">滚轮缩放 · 拖动平移</p>
+  </dialog>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
