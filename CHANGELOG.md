@@ -4,6 +4,7 @@
 
 首个公开版本，面向 Windows x64。
 
+- Mermaid 统一蓝色节点与细灰连线，流程图默认 ELK 直角折线；所有图提供原始大小入口并内置 JetBrains Mono。
 - Windows 安装器可以选择仅为当前用户安装，或为所有用户安装到 Program Files；重装沿用原范围和目录。
 
 - 打开本地或 WSL 的 Markdown 文件和文件夹，按文件树切换文档，保留最近打开历史。

@@ -4,7 +4,7 @@ import sampleImage from '../samples/reader-mark.svg?url';
 import { connectDesktop, desktop, launchExternal, openPath, openRelated, openTreeDocument, pickDocument, pickFolder, readImage } from './desktop.js';
 import { FileTree } from './file-tree.js';
 import { mountWslPicker } from './wsl-picker.js';
-import { isErDiagram, renderDiagram, svgUrl } from './diagrams.js';
+import { diagramType, renderDiagram, svgUrl } from './diagrams.js';
 import { RecentPaths } from './recents.js';
 import { localReference, renderMarkdown } from './markdown.js';
 import { closeDiagram, showDiagram } from './zoom.js';
@@ -90,13 +90,14 @@ async function hydrateImage(img, source, document, version) {
 }
 
 function mountDiagram(figure, source, index, version) {
-  const er = isErDiagram(source);
+  const kind = diagramType(source);
+  const er = kind === 'er';
   figure.classList.toggle('er-diagram', er);
   // This template is constant. Document data is inserted as text or an image URL.
   figure.innerHTML = `<div class="figure-toolbar">
     <span class="figure-label"><span aria-hidden="true">◇</span> Mermaid · 图 ${index + 1}</span>
     <div class="figure-actions">
-      <button class="fit-inline" hidden>原始大小</button>
+      <button class="fit-inline">原始大小</button>
       <select aria-label="图 ${index + 1} 的布局"><option value="dagre">Dagre</option><option value="elk">ELK</option></select>
       <button class="expand" aria-label="放大图 ${index + 1}" disabled>放大 ↗</button>
     </div>
@@ -105,14 +106,12 @@ function mountDiagram(figure, source, index, version) {
   const expand = figure.querySelector('.expand');
   const layout = figure.querySelector('select');
   const inlineFit = figure.querySelector('.fit-inline');
-  if (er) {
-    layout.value = 'elk';
-    inlineFit.hidden = false;
-    inlineFit.onclick = () => {
-      const actual = figure.classList.toggle('actual-size');
-      inlineFit.textContent = actual ? '适应宽度' : '原始大小';
-    };
-  }
+  layout.hidden = !['er', 'flowchart', 'class', 'state'].includes(kind);
+  layout.value = ['er', 'flowchart'].includes(kind) ? 'elk' : 'dagre';
+  inlineFit.onclick = () => {
+    const actual = figure.classList.toggle('actual-size');
+    inlineFit.textContent = actual ? '适应宽度' : '原始大小';
+  };
   let revision = 0;
   let url;
   let data;
