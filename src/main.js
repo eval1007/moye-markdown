@@ -213,7 +213,6 @@ function showFolder(next) {
   sidebarCollapsed = false;
   sidebarMode = 'files';
   fileTree.setFolder(next);
-  recents.add({ kind: 'folder', path: next.id, name: next.name });
   $('#folder-name').textContent = next.name;
   $('#folder-name').title = next.path;
   $('#file-name').textContent = '选择文档';
@@ -233,7 +232,6 @@ function showDocument(doc, anchor) {
   const version = ++generation;
   current = doc;
   readerFind.close();
-  if (doc.documentId) recents.add({ kind: 'document', path: doc.documentId, name: doc.name });
   closeDiagram();
   for (const url of pendingAssets) releaseUrl(url);
   panels = [];
@@ -286,13 +284,20 @@ function scrollToHeading(anchor) {
   } catch { /* Malformed fragments do not navigate. */ }
 }
 
-async function load(getDocument, anchor, onError = report) {
+async function load(getDocument, { anchor, onError = report, remember = false } = {}) {
   const request = ++opening;
   try {
     const result = await getDocument();
     if (!result || request !== opening) return false;
-    if (result.kind === 'folder') showFolder(result.folder);
-    else showDocument(result.kind === 'document' ? result.document : result, anchor);
+    if (result.kind === 'folder') {
+      const { folder: openedFolder } = result;
+      showFolder(openedFolder);
+      if (remember) recents.add({ kind: 'folder', path: openedFolder.id, name: openedFolder.name });
+    } else {
+      const doc = result.kind === 'document' ? result.document : result;
+      showDocument(doc, anchor);
+      if (remember && doc.documentId) recents.add({ kind: 'document', path: doc.documentId, name: doc.name });
+    }
     return true;
   } catch (error) {
     if (request === opening) onError(errorText(error));
@@ -300,8 +305,12 @@ async function load(getDocument, anchor, onError = report) {
   }
 }
 
+function loadPath(path, onError) {
+  return load(() => openPath(path), { onError, remember: true });
+}
+
 function chooseFile() {
-  if (desktop) load(pickDocument);
+  if (desktop) load(pickDocument, { remember: true });
   else fileInput.click();
 }
 
@@ -315,7 +324,7 @@ function openBrowserFile(file) {
 }
 
 function dropPaths(paths) {
-  if (paths[0]) load(() => openPath(paths[0]));
+  if (paths[0]) loadPath(paths[0]);
 }
 
 const recentsDialog = $('#recents-dialog');
@@ -339,7 +348,7 @@ function renderRecents() {
     row.onclick = async () => {
       recentsError.hidden = true;
       row.disabled = true;
-      const opened = await load(() => openPath(item.path), null, (error) => {
+      const opened = await loadPath(item.path, (error) => {
         recentsError.textContent = error;
         recentsError.hidden = false;
       });
@@ -359,10 +368,10 @@ $('#open-recents').onclick = () => {
 $('#recents-close').onclick = () => recentsDialog.close();
 $('#clear-recents').onclick = () => { recents.clear(); recentsError.hidden = true; renderRecents(); };
 
-const showWslDialog = mountWslPicker($('#wsl-dialog'), (path, onError) => load(() => openPath(path), null, onError));
+const showWslDialog = mountWslPicker($('#wsl-dialog'), loadPath);
 const showWorkspaceSearch = mountWorkspaceSearch($('#search-dialog'), () => folder, async (match, scope, query, onError) => {
   if (scope !== folder) return false;
-  if (!await load(() => openTreeDocument(match.path, scope.id), null, onError)) return false;
+  if (!await load(() => openTreeDocument(match.path, scope.id), { onError })) return false;
   sidebarMode = 'files';
   sidebarCollapsed = false;
   updateSidebar();
@@ -383,7 +392,7 @@ article.addEventListener('click', (event) => {
   }
   const path = localReference(href);
   if (current?.documentId && path && fileType.test(path)) {
-    load(() => openRelated(path, current.documentId), href.split('#')[1]);
+    load(() => openRelated(path, current.documentId), { anchor: href.split('#')[1] });
   } else {
     report('此链接无法在阅读器内打开。');
   }
@@ -393,7 +402,7 @@ $('#open-file').onclick = chooseFile;
 mountAppMenus(document.querySelector('.topbar'));
 $('#toggle-sidebar').onclick = () => { sidebarCollapsed = !sidebarCollapsed; updateSidebar(); };
 $('#empty-open').onclick = chooseFile;
-$('#open-folder').onclick = $('#empty-folder').onclick = () => load(pickFolder);
+$('#open-folder').onclick = $('#empty-folder').onclick = () => load(pickFolder, { remember: true });
 $('#open-wsl').onclick = showWslDialog;
 $('#find-document').onclick = () => readerFind.show();
 $('#open-folder-search').onclick = () => showWorkspaceSearch();
@@ -430,7 +439,7 @@ if (desktop) {
   $('#empty-title').textContent = '打开 Markdown 文件夹';
   $('#empty-description').textContent = '拖入文件夹或打开 WSL 路径，从文件树选择要读的文档。';
   connectDesktop(
-    (path) => load(() => openPath(path)),
+    loadPath,
     (active) => { dropTarget.hidden = !active; },
     dropPaths,
   ).catch((error) => report(errorText(error)));
