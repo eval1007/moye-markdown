@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
-  <defs>
-    <linearGradient id="ink" x1="118" y1="100" x2="315" y2="444" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#287cff"/><stop offset="1" stop-color="#1344d8"/>
-    </linearGradient>
-    <linearGradient id="paper" x1="425" y1="132" x2="190" y2="378" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#49f4cf"/><stop offset=".52" stop-color="#11d7be"/><stop offset="1" stop-color="#0799e2"/>
-    </linearGradient>
-  </defs>
-  <path d="M69 163C69 137 86 114 112 107L355 44C375 39 390 55 385 74L356 186C343 237 312 280 270 309L129 407C104 424 69 407 69 376V163Z" fill="url(#ink)"/>
-  <path d="M69 363C116 367 160 353 198 324L269 269C314 234 368 220 416 234C438 240 450 264 439 284L405 349C377 404 322 438 260 438H131C97 438 69 410 69 376V363Z" fill="url(#paper)"/>
-  <path d="M69 360C112 362 152 349 186 323L263 263C293 240 323 226 355 220C340 249 315 279 272 311L236 336C184 374 119 385 69 367V360Z" fill="#eefcff"/>
+  <title>Moye</title>
+  <!-- 叠压的两页纸：后页先画，前页沿自身轮廓外扩描边挖出分隔，保证任何尺寸下两页都不粘连 -->
+  <mask id="under" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+    <rect width="512" height="512" fill="#fff"/>
+    <path d="M69 163C69 137 86 114 112 107L355 44C375 39 390 55 385 74L356 186C343 237 312 280 270 309L129 407C104 424 69 407 69 376V163Z"
+          fill="none" stroke="#000" stroke-width="38" stroke-linejoin="round"/>
+  </mask>
+  <g mask="url(#under)">
+    <path fill="#8db4ff" d="M69 363C116 367 160 353 198 324L269 269C314 234 368 220 416 234C438 240 450 264 439 284L405 349C377 404 322 438 260 438H131C97 438 69 410 69 376V363Z"/>
+  </g>
+  <path fill="#2a6cf0" d="M69 163C69 137 86 114 112 107L355 44C375 39 390 55 385 74L356 186C343 237 312 280 270 309L129 407C104 424 69 407 69 376V163Z"/>
 </svg>
