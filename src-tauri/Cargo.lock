@@ -2180,7 +2180,7 @@ dependencies = [
 
 [[package]]
 name = "moye-reader"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "grep-matcher",
  "grep-regex",
