@@ -44,6 +44,7 @@
           "English"
         ],
         "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
         "template": "windows/installer.nsi",
         "installerHooks": "windows/open-with.nsh"
       }

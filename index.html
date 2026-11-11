@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
+  <link rel="icon" type="image/svg+xml" href="/src-tauri/icons/icon.svg">
   <title>墨页 · Markdown 阅读器</title>
 </head>
 <body>
   <header class="topbar">
+    <img class="app-logo" src="/src-tauri/icons/icon.svg" alt="墨页" title="墨页 Moye">
     <button id="toggle-sidebar" class="icon-button" aria-label="收起侧栏" aria-controls="sidebar" aria-expanded="false" title="收起侧栏 (Ctrl+B)" disabled>
       <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M7.5 3.5v13"/></svg>
     </button>
@@ -24,13 +26,7 @@
     <div class="current-file" id="file-name">未打开文档</div>
     <div class="document-actions">
       <button id="find-document" title="在当前文档中查找 (Ctrl+F)" hidden>查找</button>
-      <details class="app-menu" id="view-menu">
-        <summary class="icon-button" aria-label="更多" title="更多">···</summary>
-        <div class="menu-panel" role="group" aria-label="外观">
-          <label for="theme">外观</label>
-          <select id="theme"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select>
-        </div>
-      </details>
+      <select id="theme" aria-label="外观" title="外观"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select>
     </div>
     <input id="file-input" type="file" accept=".md,.markdown,.mdown" hidden>
   </header>
@@ -60,7 +56,7 @@
       </div>
       <div class="notice" id="notice" role="status" hidden></div>
       <section class="empty" id="empty">
-        <div class="empty-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 12h28v24H10zM15 28v-8l5 5 5-5v8m6-8v8m-3-3 3 3 3-3"/></svg></div>
+        <img class="empty-mark" src="/src-tauri/icons/icon.svg" alt="" aria-hidden="true">
         <p class="eyebrow">本地 Markdown 阅读器</p>
         <h1 id="empty-title">打开一份文档</h1>
         <p id="empty-description">拖入 Markdown 文件，阅读正文、图片和 Mermaid 图。</p>
