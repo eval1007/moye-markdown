@@ -26,7 +26,12 @@
     <div class="current-file" id="file-name">未打开文档</div>
     <div class="document-actions">
       <button id="find-document" title="在当前文档中查找 (Ctrl+F)" hidden>查找</button>
-      <select id="theme" aria-label="外观" title="外观"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select>
+      <label class="theme-picker" title="外观">
+        <svg data-theme-icon="system" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3" width="15" height="10.5" rx="1.5"/><path d="M10 13.5V17m-3 0h6"/></svg>
+        <svg data-theme-icon="light" viewBox="0 0 20 20" aria-hidden="true" hidden><circle cx="10" cy="10" r="3.5"/><path d="M10 1.5v2m0 13v2M1.5 10h2m13 0h2M4 4l1.4 1.4m9.2 9.2L16 16M4 16l1.4-1.4m9.2-9.2L16 4"/></svg>
+        <svg data-theme-icon="dark" viewBox="0 0 20 20" aria-hidden="true" hidden><path d="M17 11.5A7.5 7.5 0 0 1 8.5 3a7.5 7.5 0 1 0 8.5 8.5Z"/></svg>
+        <select id="theme" aria-label="外观"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select>
+      </label>
     </div>
     <input id="file-input" type="file" accept=".md,.markdown,.mdown" hidden>
   </header>

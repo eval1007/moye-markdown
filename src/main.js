@@ -52,6 +52,9 @@ function themeValue() {
 }
 
 function applyTheme() {
+  for (const icon of document.querySelectorAll('[data-theme-icon]')) {
+    icon.toggleAttribute('hidden', icon.dataset.themeIcon !== themePicker.value);
+  }
   const theme = themeValue();
   if (document.documentElement.dataset.theme === theme) return;
   document.documentElement.dataset.theme = theme;
