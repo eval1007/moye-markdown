@@ -18,7 +18,7 @@ const reader = $('#reader');
 const readerFind = mountDocumentFind($('#document-find'), article, reader);
 const notice = $('#notice');
 const fileInput = $('#file-input');
-const themePicker = $('#theme');
+const themeSwitch = $('#theme-switch');
 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
 const fileType = /\.(?:md|markdown|mdown)$/i;
 const imageType = { svg: 'image/svg+xml', jpg: 'image/jpeg', jpeg: 'image/jpeg', ico: 'image/x-icon' };
@@ -47,13 +47,17 @@ function updateTitle(title) {
   if (desktop) setWindowTitle(title).catch((error) => report(errorText(error)));
 }
 
+const THEME_STORAGE_KEY = 'moye-theme';
+const THEME_MODES = ['system', 'light', 'dark'];
+let themeMode = 'system';
+
 function themeValue() {
-  return themePicker.value === 'system' ? (systemTheme.matches ? 'dark' : 'light') : themePicker.value;
+  return themeMode === 'system' ? (systemTheme.matches ? 'dark' : 'light') : themeMode;
 }
 
 function applyTheme() {
-  for (const icon of document.querySelectorAll('[data-theme-icon]')) {
-    icon.toggleAttribute('hidden', icon.dataset.themeIcon !== themePicker.value);
+  for (const button of themeSwitch.querySelectorAll('[data-theme-value]')) {
+    button.setAttribute('aria-pressed', String(button.dataset.themeValue === themeMode));
   }
   const theme = themeValue();
   if (document.documentElement.dataset.theme === theme) return;
@@ -108,7 +112,7 @@ function mountDiagram(figure, diagram, index, version) {
   figure.classList.toggle('er-diagram', er);
   // Only the app's engine label and figure number go into this template.
   figure.innerHTML = `<div class="figure-toolbar">
-    <span class="figure-label"><span aria-hidden="true">◇</span> ${title}</span>
+    <span class="figure-label"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2.5"/><path d="M5.5 6.5h5M5.5 9.5h3"/></svg>${title}</span>
     <div class="figure-actions">
       <button class="fit-inline">原始大小</button>
       <select aria-label="图 ${index + 1} 的布局"><option value="dagre">Dagre</option><option value="elk">ELK</option></select>
@@ -475,10 +479,14 @@ if (desktop) {
     openBrowserFile(event.dataTransfer.files[0]);
   });
 }
-themePicker.value = localStorage.getItem('moye-theme') ?? 'system';
-themePicker.onchange = () => {
-  localStorage.setItem('moye-theme', themePicker.value);
+const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+themeMode = THEME_MODES.includes(storedTheme) ? storedTheme : 'system';
+themeSwitch.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-theme-value]');
+  if (!button) return;
+  themeMode = button.dataset.themeValue;
+  localStorage.setItem(THEME_STORAGE_KEY, themeMode);
   applyTheme();
-};
+});
 systemTheme.addEventListener('change', applyTheme);
 applyTheme();

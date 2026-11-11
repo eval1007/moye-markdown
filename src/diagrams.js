@@ -40,11 +40,11 @@ function diagramPalette(theme) {
   return {
     dark,
     ink: dark ? '#e8edf8' : '#17191d',
-    blue: dark ? '#243950' : '#e1edfc',
-    border: dark ? '#7195c4' : '#5e9df1',
+    blue: dark ? '#1f2f45' : '#e7f0fe',
+    border: dark ? '#6f95c6' : '#5c95e6',
     edge: dark ? '#a2acbd' : '#7d8189',
-    paper: dark ? '#211e2b' : '#ffffff',
-    group: dark ? '#1f2936' : '#f5f8fd',
+    paper: dark ? '#1b1e25' : '#ffffff',
+    group: dark ? '#1e2735' : '#f3f7fd',
   };
 }
 
