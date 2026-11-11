@@ -4,10 +4,11 @@ const parser = new MarkdownIt({ html: false, linkify: true, typographer: false }
 const renderFence = parser.renderer.rules.fence;
 parser.renderer.rules.fence = (tokens, index, options, env, renderer) => {
   const token = tokens[index];
-  if (token.info.trim().split(/\s+/, 1)[0].toLowerCase() !== 'mermaid') {
+  const language = token.info.trim().split(/\s+/, 1)[0].toLowerCase();
+  if (language !== 'mermaid' && language !== 'plantuml') {
     return renderFence(tokens, index, options, env, renderer);
   }
-  const diagram = env.diagrams.push(token.content) - 1;
+  const diagram = env.diagrams.push({ language, source: token.content }) - 1;
   return '<figure class="diagram" data-diagram="' + diagram + '"' + renderer.renderAttrs(token) + '></figure>';
 };
 

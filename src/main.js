@@ -96,13 +96,16 @@ async function hydrateImage(img, source, document, version) {
   }
 }
 
-function mountDiagram(figure, source, index, version) {
-  const kind = diagramType(source);
+function mountDiagram(figure, diagram, index, version) {
+  const { language, source } = diagram;
+  const engine = language === 'plantuml' ? 'PlantUML' : 'Mermaid';
+  const title = `${engine} · 图 ${index + 1}`;
+  const kind = language === 'mermaid' ? diagramType(source) : 'other';
   const er = kind === 'er';
   figure.classList.toggle('er-diagram', er);
-  // This template is constant. Document data is inserted as text or an image URL.
+  // Only the app's engine label and figure number go into this template.
   figure.innerHTML = `<div class="figure-toolbar">
-    <span class="figure-label"><span aria-hidden="true">◇</span> Mermaid · 图 ${index + 1}</span>
+    <span class="figure-label"><span aria-hidden="true">◇</span> ${title}</span>
     <div class="figure-actions">
       <button class="fit-inline">原始大小</button>
       <select aria-label="图 ${index + 1} 的布局"><option value="dagre">Dagre</option><option value="elk">ELK</option></select>
@@ -124,7 +127,7 @@ function mountDiagram(figure, source, index, version) {
   let data;
 
   function expandDiagram() {
-    if (data && url) showDiagram(data, url, `Mermaid · 图 ${index + 1}`);
+    if (data && url) showDiagram(data, url, title);
   }
   expand.onclick = expandDiagram;
 
@@ -138,13 +141,13 @@ function mountDiagram(figure, source, index, version) {
     url = undefined;
     data = undefined;
     try {
-      const next = await renderDiagram(source, themeValue(), layout.value, er, isCurrent);
+      const next = await renderDiagram(diagram, themeValue(), layout.value, er, isCurrent);
       if (!next || !isCurrent()) return;
       data = next;
       url = rememberUrl(svgUrl(data.svg));
       const img = document.createElement('img');
       img.src = url;
-      img.alt = `Mermaid 图 ${index + 1}`;
+      img.alt = title;
       img.style.width = `${data.width}px`;
       const button = document.createElement('button');
       button.type = 'button';
@@ -158,7 +161,7 @@ function mountDiagram(figure, source, index, version) {
       if (!isCurrent()) return;
       const message = document.createElement('p');
       message.className = 'diagram-error';
-      message.textContent = '这张 Mermaid 图无法显示。';
+      message.textContent = `这张 ${engine} 图无法显示。`;
       const details = document.createElement('details');
       const label = document.createElement('summary');
       label.textContent = '查看错误和源码';

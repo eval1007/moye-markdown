@@ -10,7 +10,7 @@ async function loadRenderer() {
   return mermaid;
 }
 
-/** Loads the font before Mermaid measures labels, and returns the rule for the SVG image. */
+/** Loads the font before the engines measure labels, and returns the rule for the SVG image. */
 async function loadDiagramFont() {
   const { default: url } = await import('./fonts/JetBrainsMono-Regular.woff2?inline');
   const source = `url("${url}") format("woff2")`;
@@ -35,20 +35,51 @@ export function straightenElkPath(path) {
   return path.replace(/Q([-\d.e+]+),([-\d.e+]+)\s+([-\d.e+]+),([-\d.e+]+)/gi, 'L$1,$2L$3,$4');
 }
 
-/** Serializes Mermaid configuration changes so each SVG uses its requested theme and layout. */
-export function renderDiagram(source, theme, layout, isEr, isCurrent) {
+function diagramPalette(theme) {
+  const dark = theme === 'dark';
+  return {
+    dark,
+    ink: dark ? '#e8edf8' : '#17191d',
+    blue: dark ? '#243950' : '#e1edfc',
+    border: dark ? '#7195c4' : '#5e9df1',
+    edge: dark ? '#a2acbd' : '#7d8189',
+    paper: dark ? '#211e2b' : '#ffffff',
+    group: dark ? '#1f2936' : '#f5f8fd',
+  };
+}
+
+function prepareSvg(element, fontRule, layout) {
+  const [, , viewWidth, viewHeight] = (element.getAttribute('viewBox') ?? '').trim().split(/[ ,]+/).map(Number);
+  const width = Number(element.getAttribute('width')) || viewWidth || 640;
+  const height = Number(element.getAttribute('height')) || viewHeight || 480;
+  if (layout === 'elk') {
+    // Mermaid 12.3's ELK adapter forces rounded corners even with flowchart.curve = linear.
+    for (const edge of element.querySelectorAll('path.flowchart-link')) {
+      edge.setAttribute('d', straightenElkPath(edge.getAttribute('d')));
+    }
+  }
+  // An SVG loaded as an image cannot inherit the page's fonts or fetch a font file.
+  const style = element.ownerDocument.createElementNS(element.namespaceURI, 'style');
+  style.textContent = fontRule;
+  element.prepend(style);
+  return { svg: new XMLSerializer().serializeToString(element), width, height };
+}
+
+/** Renders each SVG with its requested theme and skips work for panels that have been replaced. */
+export function renderDiagram({ language, source }, theme, layout, isEr, isCurrent) {
   const task = renderTail.then(async () => {
     if (!isCurrent()) return null;
-    const mermaid = await (renderer ??= loadRenderer());
     const fontRule = await (diagramFont ??= loadDiagramFont());
+    const palette = diagramPalette(theme);
+    if (language === 'plantuml') {
+      const { renderPlantUml } = await import('./plantuml.js');
+      if (!isCurrent()) return null;
+      const element = await renderPlantUml(source, palette, fontStack);
+      return isCurrent() ? prepareSvg(element, fontRule) : null;
+    }
+    const mermaid = await (renderer ??= loadRenderer());
     if (!isCurrent()) return null;
-    const dark = theme === 'dark';
-    const ink = dark ? '#e8edf8' : '#17191d';
-    const blue = dark ? '#243950' : '#e1edfc';
-    const border = dark ? '#7195c4' : '#5e9df1';
-    const edge = dark ? '#a2acbd' : '#7d8189';
-    const paper = dark ? '#211e2b' : '#ffffff';
-    const group = dark ? '#1f2936' : '#f5f8fd';
+    const { dark, ink, blue, border, edge, paper, group } = palette;
     mermaid.initialize({
       startOnLoad: false,
       securityLevel: 'strict',
@@ -84,18 +115,7 @@ export function renderDiagram(source, theme, layout, isEr, isCurrent) {
       const { svg } = await mermaid.render(id, source);
       if (!isCurrent()) return null;
       const element = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
-      const [, , width, height] = (element.getAttribute('viewBox') ?? '').split(/[ ,]+/).map(Number);
-      if (layout === 'elk') {
-        // Mermaid 12.3's ELK adapter forces rounded corners even with flowchart.curve = linear.
-        for (const edge of element.querySelectorAll('path.flowchart-link')) {
-          edge.setAttribute('d', straightenElkPath(edge.getAttribute('d')));
-        }
-      }
-      // An SVG loaded as an image cannot inherit the page's fonts or fetch a font file.
-      const style = element.ownerDocument.createElementNS(element.namespaceURI, 'style');
-      style.textContent = fontRule;
-      element.prepend(style);
-      return { svg: new XMLSerializer().serializeToString(element), width: width || 640, height: height || 480 };
+      return prepareSvg(element, fontRule, layout);
     } finally {
       // Some Mermaid errors leave their temporary rendering host in the DOM.
       document.getElementById(`d${id}`)?.remove();

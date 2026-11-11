@@ -10,7 +10,7 @@ flowchart LR
     subgraph preview["阅读窗口"]
         direction TB
         body --> text["排版标题、正文和表格"]
-        body --> detect{"是否含有 Mermaid？"}
+        body --> detect{"是否含有图表？"}
         detect -->|是| diagram["绘制流程图或时序图"]
         detect -->|否| text
         diagram --> focus["点击放大，查看长标签和交叉连线"]
@@ -32,6 +32,18 @@ sequenceDiagram
     Reader-->>User: 显示文档和图表
     User->>Reader: 放大 Mermaid 图
     Reader-->>User: 显示可缩放的图表画布
+```
+
+## PlantUML 时序图
+
+```plantuml
+@startuml
+actor 读者 as User
+participant 墨页 as Reader
+User -> Reader: 打开 Markdown
+Reader --> User: 显示正文和 PlantUML 图
+note over Reader: 图表在本机绘制
+@enduml
 ```
 
 ## 相对路径图片
