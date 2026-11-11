@@ -6,15 +6,27 @@ parser.renderer.rules.fence = (tokens, index, options, env, renderer) => {
   const token = tokens[index];
   const language = token.info.trim().split(/\s+/, 1)[0].toLowerCase();
   if (language !== 'mermaid' && language !== 'plantuml') {
-    return renderFence(tokens, index, options, env, renderer);
+    const code = env.highlightCode(token.content, language, token.attrs)
+      ?? renderFence(tokens, index, options, env, renderer);
+    const label = parser.utils.escapeHtml(language || '纯文本');
+    return '<section class="code-block"><div class="code-toolbar">'
+      + '<span class="code-language">' + label + '</span>'
+      + '<button type="button" class="copy-code" aria-label="复制代码">复制</button>'
+      + '<span class="sr-only copy-status" role="status"></span></div>' + code + '</section>\n';
   }
   const diagram = env.diagrams.push({ language, source: token.content }) - 1;
   return '<figure class="diagram" data-diagram="' + diagram + '"' + renderer.renderAttrs(token) + '></figure>';
 };
 
-export function renderMarkdown(text) {
+/** Renders read-only Markdown, loading the bundled highlighter only for ordinary code fences. */
+export async function renderMarkdown(text) {
   const env = { diagrams: [] };
   const tokens = parser.parse(text, env);
+  if (tokens.some((token) => token.type === 'fence'
+    && !['mermaid', 'plantuml'].includes(token.info.trim().split(/\s+/, 1)[0].toLowerCase()))) {
+    const { highlightCode } = await import('./code-highlighting.js');
+    env.highlightCode = highlightCode;
+  }
   const headings = [];
   const counts = new Map();
 

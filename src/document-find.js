@@ -3,7 +3,7 @@ const searchableBlock = 'p,li,td,th,pre,dt,dd,h1,h2,h3,h4,h5,h6';
 function literalMatches(article, query) {
   const pattern = new RegExp(query.replace(/[.*+?{}^$()|[\]\\]/g, '\\$&'), 'giu');
   const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, {
-    acceptNode: (node) => node.parentElement.closest('figure.diagram,[hidden]')
+    acceptNode: (node) => node.parentElement.closest('figure.diagram,.code-toolbar,[hidden]')
       ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
   });
   const ranges = [];

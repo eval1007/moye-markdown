@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>墨页 · 代码渲染方案对比</title>
+<style>
+[data-theme="light"] .hljs-demo pre code.hljs{
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}[data-theme="light"] .hljs-demo code.hljs{
+  padding: 3px 5px
+}[data-theme="light"] .hljs-demo .hljs{
+  color: #24292e;
+  background: #ffffff
+}[data-theme="light"] .hljs-demo .hljs-doctag,[data-theme="light"] .hljs-demo .hljs-keyword,[data-theme="light"] .hljs-demo .hljs-meta .hljs-keyword,[data-theme="light"] .hljs-demo .hljs-template-tag,[data-theme="light"] .hljs-demo .hljs-template-variable,[data-theme="light"] .hljs-demo .hljs-type,[data-theme="light"] .hljs-demo .hljs-variable.language_{
+
+  color: #d73a49
+}[data-theme="light"] .hljs-demo .hljs-title,[data-theme="light"] .hljs-demo .hljs-title.class_,[data-theme="light"] .hljs-demo .hljs-title.class_.inherited__,[data-theme="light"] .hljs-demo .hljs-title.function_{
+
+  color: #6f42c1
+}[data-theme="light"] .hljs-demo .hljs-attr,[data-theme="light"] .hljs-demo .hljs-attribute,[data-theme="light"] .hljs-demo .hljs-literal,[data-theme="light"] .hljs-demo .hljs-meta,[data-theme="light"] .hljs-demo .hljs-number,[data-theme="light"] .hljs-demo .hljs-operator,[data-theme="light"] .hljs-demo .hljs-variable,[data-theme="light"] .hljs-demo .hljs-selector-attr,[data-theme="light"] .hljs-demo .hljs-selector-class,[data-theme="light"] .hljs-demo .hljs-selector-id{
+
+  color: #005cc5
+}[data-theme="light"] .hljs-demo .hljs-regexp,[data-theme="light"] .hljs-demo .hljs-string,[data-theme="light"] .hljs-demo .hljs-meta .hljs-string{
+
+  color: #032f62
+}[data-theme="light"] .hljs-demo .hljs-built_in,[data-theme="light"] .hljs-demo .hljs-symbol{
+
+  color: #e36209
+}[data-theme="light"] .hljs-demo .hljs-comment,[data-theme="light"] .hljs-demo .hljs-code,[data-theme="light"] .hljs-demo .hljs-formula{
+
+  color: #6a737d
+}[data-theme="light"] .hljs-demo .hljs-name,[data-theme="light"] .hljs-demo .hljs-quote,[data-theme="light"] .hljs-demo .hljs-selector-tag,[data-theme="light"] .hljs-demo .hljs-selector-pseudo{
+
+  color: #22863a
+}[data-theme="light"] .hljs-demo .hljs-subst{
+
+  color: #24292e
+}[data-theme="light"] .hljs-demo .hljs-section{
+
+  color: #005cc5;
+  font-weight: bold
+}[data-theme="light"] .hljs-demo .hljs-bullet{
+
+  color: #735c0f
+}[data-theme="light"] .hljs-demo .hljs-emphasis{
+
+  color: #24292e;
+  font-style: italic
+}[data-theme="light"] .hljs-demo .hljs-strong{
+
+  color: #24292e;
+  font-weight: bold
+}[data-theme="light"] .hljs-demo .hljs-addition{
+
+  color: #22863a;
+  background-color: #f0fff4
+}[data-theme="light"] .hljs-demo .hljs-deletion{
+
+  color: #b31d28;
+  background-color: #ffeef0
+}[data-theme="light"] .hljs-demo .hljs-char.escape_,[data-theme="light"] .hljs-demo .hljs-link,[data-theme="light"] .hljs-demo .hljs-params,[data-theme="light"] .hljs-demo .hljs-property,[data-theme="light"] .hljs-demo .hljs-punctuation,[data-theme="light"] .hljs-demo .hljs-tag{
+
+
+}
+[data-theme="dark"] .hljs-demo pre code.hljs{
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}[data-theme="dark"] .hljs-demo code.hljs{
+  padding: 3px 5px
+}[data-theme="dark"] .hljs-demo .hljs{
+  color: #c9d1d9;
+  background: #0d1117
+}[data-theme="dark"] .hljs-demo .hljs-doctag,[data-theme="dark"] .hljs-demo .hljs-keyword,[data-theme="dark"] .hljs-demo .hljs-meta .hljs-keyword,[data-theme="dark"] .hljs-demo .hljs-template-tag,[data-theme="dark"] .hljs-demo .hljs-template-variable,[data-theme="dark"] .hljs-demo .hljs-type,[data-theme="dark"] .hljs-demo .hljs-variable.language_{
+
+  color: #ff7b72
+}[data-theme="dark"] .hljs-demo .hljs-title,[data-theme="dark"] .hljs-demo .hljs-title.class_,[data-theme="dark"] .hljs-demo .hljs-title.class_.inherited__,[data-theme="dark"] .hljs-demo .hljs-title.function_{
+
+  color: #d2a8ff
+}[data-theme="dark"] .hljs-demo .hljs-attr,[data-theme="dark"] .hljs-demo .hljs-attribute,[data-theme="dark"] .hljs-demo .hljs-literal,[data-theme="dark"] .hljs-demo .hljs-meta,[data-theme="dark"] .hljs-demo .hljs-number,[data-theme="dark"] .hljs-demo .hljs-operator,[data-theme="dark"] .hljs-demo .hljs-variable,[data-theme="dark"] .hljs-demo .hljs-selector-attr,[data-theme="dark"] .hljs-demo .hljs-selector-class,[data-theme="dark"] .hljs-demo .hljs-selector-id{
+
+  color: #79c0ff
+}[data-theme="dark"] .hljs-demo .hljs-regexp,[data-theme="dark"] .hljs-demo .hljs-string,[data-theme="dark"] .hljs-demo .hljs-meta .hljs-string{
+
+  color: #a5d6ff
+}[data-theme="dark"] .hljs-demo .hljs-built_in,[data-theme="dark"] .hljs-demo .hljs-symbol{
+
+  color: #ffa657
+}[data-theme="dark"] .hljs-demo .hljs-comment,[data-theme="dark"] .hljs-demo .hljs-code,[data-theme="dark"] .hljs-demo .hljs-formula{
+
+  color: #8b949e
+}[data-theme="dark"] .hljs-demo .hljs-name,[data-theme="dark"] .hljs-demo .hljs-quote,[data-theme="dark"] .hljs-demo .hljs-selector-tag,[data-theme="dark"] .hljs-demo .hljs-selector-pseudo{
+
+  color: #7ee787
+}[data-theme="dark"] .hljs-demo .hljs-subst{
+
+  color: #c9d1d9
+}[data-theme="dark"] .hljs-demo .hljs-section{
+
+  color: #1f6feb;
+  font-weight: bold
+}[data-theme="dark"] .hljs-demo .hljs-bullet{
+
+  color: #f2cc60
+}[data-theme="dark"] .hljs-demo .hljs-emphasis{
+
+  color: #c9d1d9;
+  font-style: italic
+}[data-theme="dark"] .hljs-demo .hljs-strong{
+
+  color: #c9d1d9;
+  font-weight: bold
+}[data-theme="dark"] .hljs-demo .hljs-addition{
+
+  color: #aff5b4;
+  background-color: #033a16
+}[data-theme="dark"] .hljs-demo .hljs-deletion{
+
+  color: #ffdcd7;
+  background-color: #67060c
+}[data-theme="dark"] .hljs-demo .hljs-char.escape_,[data-theme="dark"] .hljs-demo .hljs-link,[data-theme="dark"] .hljs-demo .hljs-params,[data-theme="dark"] .hljs-demo .hljs-property,[data-theme="dark"] .hljs-demo .hljs-punctuation,[data-theme="dark"] .hljs-demo .hljs-tag{
+
+
+}
+[data-theme="light"] .prism-demo code[class*="language-"],[data-theme="light"] .prism-demo pre[class*="language-"]{
+	color: black;
+	background: none;
+	text-shadow: 0 1px white;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}[data-theme="light"] .prism-demo pre[class*="language-"]::-moz-selection,[data-theme="light"] .prism-demo pre[class*="language-"] ::-moz-selection,[data-theme="light"] .prism-demo code[class*="language-"]::-moz-selection,[data-theme="light"] .prism-demo code[class*="language-"] ::-moz-selection{
+	text-shadow: none;
+	background: #b3d4fc;
+}[data-theme="light"] .prism-demo pre[class*="language-"]::selection,[data-theme="light"] .prism-demo pre[class*="language-"] ::selection,[data-theme="light"] .prism-demo code[class*="language-"]::selection,[data-theme="light"] .prism-demo code[class*="language-"] ::selection{
+	text-shadow: none;
+	background: #b3d4fc;
+}[data-theme="light"] .prism-demo @media print{[data-theme="light"] .prism-demo code[class*="language-"],[data-theme="light"] .prism-demo pre[class*="language-"]{
+		text-shadow: none;
+	}
+}[data-theme="light"] .prism-demo pre[class*="language-"]{
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+}[data-theme="light"] .prism-demo :not(pre) > code[class*="language-"],[data-theme="light"] .prism-demo pre[class*="language-"]{
+	background: #f5f2f0;
+}[data-theme="light"] .prism-demo :not(pre) > code[class*="language-"]{
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}[data-theme="light"] .prism-demo .token.comment,[data-theme="light"] .prism-demo .token.prolog,[data-theme="light"] .prism-demo .token.doctype,[data-theme="light"] .prism-demo .token.cdata{
+	color: slategray;
+}[data-theme="light"] .prism-demo .token.punctuation{
+	color: #999;
+}[data-theme="light"] .prism-demo .token.namespace{
+	opacity: .7;
+}[data-theme="light"] .prism-demo .token.property,[data-theme="light"] .prism-demo .token.tag,[data-theme="light"] .prism-demo .token.boolean,[data-theme="light"] .prism-demo .token.number,[data-theme="light"] .prism-demo .token.constant,[data-theme="light"] .prism-demo .token.symbol,[data-theme="light"] .prism-demo .token.deleted{
+	color: #905;
+}[data-theme="light"] .prism-demo .token.selector,[data-theme="light"] .prism-demo .token.attr-name,[data-theme="light"] .prism-demo .token.string,[data-theme="light"] .prism-demo .token.char,[data-theme="light"] .prism-demo .token.builtin,[data-theme="light"] .prism-demo .token.inserted{
+	color: #690;
+}[data-theme="light"] .prism-demo .token.operator,[data-theme="light"] .prism-demo .token.entity,[data-theme="light"] .prism-demo .token.url,[data-theme="light"] .prism-demo .language-css .token.string,[data-theme="light"] .prism-demo .style .token.string{
+	color: #9a6e3a;
+
+	background: hsla(0, 0%, 100%, .5);
+}[data-theme="light"] .prism-demo .token.atrule,[data-theme="light"] .prism-demo .token.attr-value,[data-theme="light"] .prism-demo .token.keyword{
+	color: #07a;
+}[data-theme="light"] .prism-demo .token.function,[data-theme="light"] .prism-demo .token.class-name{
+	color: #DD4A68;
+}[data-theme="light"] .prism-demo .token.regex,[data-theme="light"] .prism-demo .token.important,[data-theme="light"] .prism-demo .token.variable{
+	color: #e90;
+}[data-theme="light"] .prism-demo .token.important,[data-theme="light"] .prism-demo .token.bold{
+	font-weight: bold;
+}[data-theme="light"] .prism-demo .token.italic{
+	font-style: italic;
+}[data-theme="light"] .prism-demo .token.entity{
+	cursor: help;
+}
+
+[data-theme="dark"] .prism-demo code[class*="language-"],[data-theme="dark"] .prism-demo pre[class*="language-"]{
+	color: #ccc;
+	background: none;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+
+}[data-theme="dark"] .prism-demo pre[class*="language-"]{
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+}[data-theme="dark"] .prism-demo :not(pre) > code[class*="language-"],[data-theme="dark"] .prism-demo pre[class*="language-"]{
+	background: #2d2d2d;
+}[data-theme="dark"] .prism-demo :not(pre) > code[class*="language-"]{
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}[data-theme="dark"] .prism-demo .token.comment,[data-theme="dark"] .prism-demo .token.block-comment,[data-theme="dark"] .prism-demo .token.prolog,[data-theme="dark"] .prism-demo .token.doctype,[data-theme="dark"] .prism-demo .token.cdata{
+	color: #999;
+}[data-theme="dark"] .prism-demo .token.punctuation{
+	color: #ccc;
+}[data-theme="dark"] .prism-demo .token.tag,[data-theme="dark"] .prism-demo .token.attr-name,[data-theme="dark"] .prism-demo .token.namespace,[data-theme="dark"] .prism-demo .token.deleted{
+	color: #e2777a;
+}[data-theme="dark"] .prism-demo .token.function-name{
+	color: #6196cc;
+}[data-theme="dark"] .prism-demo .token.boolean,[data-theme="dark"] .prism-demo .token.number,[data-theme="dark"] .prism-demo .token.function{
+	color: #f08d49;
+}[data-theme="dark"] .prism-demo .token.property,[data-theme="dark"] .prism-demo .token.class-name,[data-theme="dark"] .prism-demo .token.constant,[data-theme="dark"] .prism-demo .token.symbol{
+	color: #f8c555;
+}[data-theme="dark"] .prism-demo .token.selector,[data-theme="dark"] .prism-demo .token.important,[data-theme="dark"] .prism-demo .token.atrule,[data-theme="dark"] .prism-demo .token.keyword,[data-theme="dark"] .prism-demo .token.builtin{
+	color: #cc99cd;
+}[data-theme="dark"] .prism-demo .token.string,[data-theme="dark"] .prism-demo .token.char,[data-theme="dark"] .prism-demo .token.attr-value,[data-theme="dark"] .prism-demo .token.regex,[data-theme="dark"] .prism-demo .token.variable{
+	color: #7ec699;
+}[data-theme="dark"] .prism-demo .token.operator,[data-theme="dark"] .prism-demo .token.entity,[data-theme="dark"] .prism-demo .token.url{
+	color: #67cdcc;
+}[data-theme="dark"] .prism-demo .token.important,[data-theme="dark"] .prism-demo .token.bold{
+	font-weight: bold;
+}[data-theme="dark"] .prism-demo .token.italic{
+	font-style: italic;
+}[data-theme="dark"] .prism-demo .token.entity{
+	cursor: help;
+}[data-theme="dark"] .prism-demo .token.inserted{
+	color: green;
+}
+
+:root {color-scheme:light;--bg:#f6f5fa;--paper:#fff;--ink:#262237;--muted:#645d73;--line:#e5e0ee;--soft:#faf9fd;--accent:#6047b1;--tint:#eee8fa}
+:root[data-theme=dark] {color-scheme:dark;--bg:#191722;--paper:#211e2b;--ink:#f1eef8;--muted:#bdb5cb;--line:#3c354b;--soft:#282435;--accent:#c0b2ff;--tint:#342b4b}
+* {box-sizing:border-box} body {margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 'Segoe UI','Microsoft YaHei UI',system-ui,sans-serif}
+main {max-width:1700px;margin:auto;padding:32px} h1 {font-size:27px;line-height:1.3;margin:0 0 10px} .intro {color:var(--muted);margin:0;max-width:1000px}
+.controls {display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:22px 0} button,select {border:1px solid var(--line);border-radius:7px;padding:6px 12px;background:var(--paper);color:var(--ink);font:inherit;cursor:pointer} button:hover {background:var(--tint)} button[aria-pressed=true] {color:var(--accent);border-color:var(--accent);background:var(--tint)} .controls label {margin-left:auto;color:var(--muted);display:flex;gap:8px;align-items:center}
+.grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px} article {min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden} article header {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)} h2 {margin:0;font-size:16px} header p {margin:0;color:var(--muted);font-size:12px} .copy {font-size:12px} article pre,article code {font-family:'Cascadia Code',Consolas,ui-monospace,monospace!important;font-size:13px!important;line-height:1.72!important;text-shadow:none!important} article pre {margin:0!important;padding:18px!important;overflow:auto!important;white-space:pre!important;border-radius:0!important;min-height:120px} article code {padding:0!important;background:transparent!important} .current pre {background:var(--soft)}
+[data-theme=dark] .shiki,[data-theme=dark] .shiki span {color:var(--shiki-dark)!important;background-color:var(--shiki-dark-bg)!important;font-style:var(--shiki-dark-font-style)!important;font-weight:var(--shiki-dark-font-weight)!important;text-decoration:var(--shiki-dark-text-decoration)!important}
+.note {margin:22px 0 0;color:var(--muted);font-size:13px}.shiki-demo h2 {color:var(--accent)} :focus-visible {outline:2px solid var(--accent);outline-offset:3px}[hidden] {display:none!important}
+@media(max-width:950px) {.grid {grid-template-columns:1fr} main {padding:20px}.controls label {margin-left:0}}
+</style><main><h1>墨页 · 代码渲染方案对比</h1><p class="intro">同一份原始代码，比较实际语法高亮。Shiki 使用 VS Code 同源的 TextMate 语法与主题体系；语言栏和复制按钮是本预览的统一外框，不代表库自带功能。</p><div class="controls" role="group" aria-label="代码示例"><button data-lang="javascript" aria-pressed="true">JavaScript</button><button data-lang="sql" aria-pressed="false">SQL</button><button data-lang="json" aria-pressed="false">JSON</button><label>外观 <select aria-label="预览主题"><option value="light">浅色</option><option value="dark">深色</option></select></label></div><section class="language-panel" data-language="javascript" ><div class="grid"><article class="current"><header><div><h2>当前墨页</h2><p>仅底色与边框 · 无语法高亮</p></div><button class="copy" type="button" aria-label="复制 当前墨页 javascript 代码">复制</button></header><pre><code>async function loadDashboard({ fetchSales, fetchAds, fetchStock }) {
+  const [sales, ads, stock] = await Promise.allSettled([
+    fetchSales(),
+    fetchAds(),
+    fetchStock(),
+  ]);
+
+  if (sales.status === &quot;rejected&quot;) {
+    return { status: 503, body: { code: &quot;SALES_UNAVAILABLE&quot; } };
+  }
+
+  const body = { sales: sales.value, missingModules: [] };
+  for (const [name, result] of [[&quot;ads&quot;, ads], [&quot;stock&quot;, stock]]) {
+    if (result.status === &quot;fulfilled&quot;) {
+      body[name] = result.value;
+    } else {
+      body.missingModules.push(name);
+    }
+  }
+
+  return { status: 200, body };
+}
+</code></pre></article><article class="shiki-demo"><header><div><h2>Shiki</h2><p>推荐 · GitHub Light / Dark</p></div><button class="copy" type="button" aria-label="复制 Shiki javascript 代码">复制</button></header><pre class="shiki shiki-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" tabindex="0"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">async</span><span style="color:#D73A49;--shiki-dark:#F97583"> function</span><span style="color:#6F42C1;--shiki-dark:#B392F0"> loadDashboard</span><span style="color:#24292E;--shiki-dark:#E1E4E8">({ </span><span style="color:#E36209;--shiki-dark:#FFAB70">fetchSales</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, </span><span style="color:#E36209;--shiki-dark:#FFAB70">fetchAds</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, </span><span style="color:#E36209;--shiki-dark:#FFAB70">fetchStock</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> }) {</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">  const</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> [</span><span style="color:#005CC5;--shiki-dark:#79B8FF">sales</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, </span><span style="color:#005CC5;--shiki-dark:#79B8FF">ads</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, </span><span style="color:#005CC5;--shiki-dark:#79B8FF">stock</span><span style="color:#24292E;--shiki-dark:#E1E4E8">] </span><span style="color:#D73A49;--shiki-dark:#F97583">=</span><span style="color:#D73A49;--shiki-dark:#F97583"> await</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> Promise</span><span style="color:#24292E;--shiki-dark:#E1E4E8">.</span><span style="color:#6F42C1;--shiki-dark:#B392F0">allSettled</span><span style="color:#24292E;--shiki-dark:#E1E4E8">([</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">    fetchSales</span><span style="color:#24292E;--shiki-dark:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">    fetchAds</span><span style="color:#24292E;--shiki-dark:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">    fetchStock</span><span style="color:#24292E;--shiki-dark:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  ]);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">  if</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> (sales.status </span><span style="color:#D73A49;--shiki-dark:#F97583">===</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> "rejected"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">    return</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> { status: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">503</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, body: { code: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">"SALES_UNAVAILABLE"</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> } };</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">  const</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> body</span><span style="color:#D73A49;--shiki-dark:#F97583"> =</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> { sales: sales.value, missingModules: [] };</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">  for</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> (</span><span style="color:#D73A49;--shiki-dark:#F97583">const</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> [</span><span style="color:#005CC5;--shiki-dark:#79B8FF">name</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, </span><span style="color:#005CC5;--shiki-dark:#79B8FF">result</span><span style="color:#24292E;--shiki-dark:#E1E4E8">] </span><span style="color:#D73A49;--shiki-dark:#F97583">of</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> [[</span><span style="color:#032F62;--shiki-dark:#9ECBFF">"ads"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, ads], [</span><span style="color:#032F62;--shiki-dark:#9ECBFF">"stock"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, stock]]) {</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">    if</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> (result.status </span><span style="color:#D73A49;--shiki-dark:#F97583">===</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> "fulfilled"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">      body[name] </span><span style="color:#D73A49;--shiki-dark:#F97583">=</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> result.value;</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    } </span><span style="color:#D73A49;--shiki-dark:#F97583">else</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">      body.missingModules.</span><span style="color:#6F42C1;--shiki-dark:#B392F0">push</span><span style="color:#24292E;--shiki-dark:#E1E4E8">(name);</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">  return</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> { status: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">200</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, body };</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre></article><article class="hljs-demo"><header><div><h2>highlight.js</h2><p>备选 · GitHub / GitHub Dark</p></div><button class="copy" type="button" aria-label="复制 highlight.js javascript 代码">复制</button></header><pre class="hljs"><code><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">loadDashboard</span>(<span class="hljs-params">{ fetchSales, fetchAds, fetchStock }</span>) {
+  <span class="hljs-keyword">const</span> [sales, ads, stock] = <span class="hljs-keyword">await</span> <span class="hljs-title class_">Promise</span>.<span class="hljs-title function_">allSettled</span>([
+    <span class="hljs-title function_">fetchSales</span>(),
+    <span class="hljs-title function_">fetchAds</span>(),
+    <span class="hljs-title function_">fetchStock</span>(),
+  ]);
+
+  <span class="hljs-keyword">if</span> (sales.<span class="hljs-property">status</span> === <span class="hljs-string">&quot;rejected&quot;</span>) {
+    <span class="hljs-keyword">return</span> { <span class="hljs-attr">status</span>: <span class="hljs-number">503</span>, <span class="hljs-attr">body</span>: { <span class="hljs-attr">code</span>: <span class="hljs-string">&quot;SALES_UNAVAILABLE&quot;</span> } };
+  }
+
+  <span class="hljs-keyword">const</span> body = { <span class="hljs-attr">sales</span>: sales.<span class="hljs-property">value</span>, <span class="hljs-attr">missingModules</span>: [] };
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> [name, result] <span class="hljs-keyword">of</span> [[<span class="hljs-string">&quot;ads&quot;</span>, ads], [<span class="hljs-string">&quot;stock&quot;</span>, stock]]) {
+    <span class="hljs-keyword">if</span> (result.<span class="hljs-property">status</span> === <span class="hljs-string">&quot;fulfilled&quot;</span>) {
+      body[name] = result.<span class="hljs-property">value</span>;
+    } <span class="hljs-keyword">else</span> {
+      body.<span class="hljs-property">missingModules</span>.<span class="hljs-title function_">push</span>(name);
+    }
+  }
+
+  <span class="hljs-keyword">return</span> { <span class="hljs-attr">status</span>: <span class="hljs-number">200</span>, body };
+}
+</code></pre></article><article class="prism-demo"><header><div><h2>Prism</h2><p>插件丰富 · Default / Tomorrow</p></div><button class="copy" type="button" aria-label="复制 Prism javascript 代码">复制</button></header><pre class="language-javascript"><code class="language-javascript"><span class="token keyword">async</span> <span class="token keyword">function</span> <span class="token function">loadDashboard</span><span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> fetchSales<span class="token punctuation">,</span> fetchAds<span class="token punctuation">,</span> fetchStock <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>sales<span class="token punctuation">,</span> ads<span class="token punctuation">,</span> stock<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">await</span> Promise<span class="token punctuation">.</span><span class="token function">allSettled</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token function">fetchSales</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">fetchAds</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">fetchStock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>sales<span class="token punctuation">.</span>status <span class="token operator">===</span> <span class="token string">"rejected"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span> <span class="token literal-property property">status</span><span class="token operator">:</span> <span class="token number">503</span><span class="token punctuation">,</span> <span class="token literal-property property">body</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token literal-property property">code</span><span class="token operator">:</span> <span class="token string">"SALES_UNAVAILABLE"</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">const</span> body <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token literal-property property">sales</span><span class="token operator">:</span> sales<span class="token punctuation">.</span>value<span class="token punctuation">,</span> <span class="token literal-property property">missingModules</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token punctuation">[</span>name<span class="token punctuation">,</span> result<span class="token punctuation">]</span> <span class="token keyword">of</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"ads"</span><span class="token punctuation">,</span> ads<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">"stock"</span><span class="token punctuation">,</span> stock<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>result<span class="token punctuation">.</span>status <span class="token operator">===</span> <span class="token string">"fulfilled"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      body<span class="token punctuation">[</span>name<span class="token punctuation">]</span> <span class="token operator">=</span> result<span class="token punctuation">.</span>value<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      body<span class="token punctuation">.</span>missingModules<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">{</span> <span class="token literal-property property">status</span><span class="token operator">:</span> <span class="token number">200</span><span class="token punctuation">,</span> body <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></article></div></section><section class="language-panel" data-language="sql" hidden><div class="grid"><article class="current"><header><div><h2>当前墨页</h2><p>仅底色与边框 · 无语法高亮</p></div><button class="copy" type="button" aria-label="复制 当前墨页 sql 代码">复制</button></header><pre><code>SELECT
+    snapshot_id,
+    payload,
+    refreshed_at,
+    CASE
+        WHEN fresh_until &gt; :request_time THEN 'fresh'
+        ELSE 'stale'
+    END AS freshness
+FROM dashboard_snapshots
+WHERE store_id = :store_id
+  AND report_date = :report_date
+  AND usable_until &gt; :request_time
+ORDER BY refreshed_at DESC, snapshot_id DESC
+LIMIT 1;
+</code></pre></article><article class="shiki-demo"><header><div><h2>Shiki</h2><p>推荐 · GitHub Light / Dark</p></div><button class="copy" type="button" aria-label="复制 Shiki sql 代码">复制</button></header><pre class="shiki shiki-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" tabindex="0"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">SELECT</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    snapshot_id,</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    payload,</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    refreshed_at,</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">    CASE</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">        WHEN</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> fresh_until </span><span style="color:#D73A49;--shiki-dark:#F97583">></span><span style="color:#24292E;--shiki-dark:#E1E4E8"> :request_time </span><span style="color:#D73A49;--shiki-dark:#F97583">THEN</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> 'fresh'</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">        ELSE</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> 'stale'</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">    END</span><span style="color:#D73A49;--shiki-dark:#F97583"> AS</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> freshness</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">FROM</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> dashboard_snapshots</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">WHERE</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> store_id </span><span style="color:#D73A49;--shiki-dark:#F97583">=</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> :store_id</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">  AND</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> report_date </span><span style="color:#D73A49;--shiki-dark:#F97583">=</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> :report_date</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">  AND</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> usable_until </span><span style="color:#D73A49;--shiki-dark:#F97583">></span><span style="color:#24292E;--shiki-dark:#E1E4E8"> :request_time</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">ORDER BY</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> refreshed_at </span><span style="color:#D73A49;--shiki-dark:#F97583">DESC</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, snapshot_id </span><span style="color:#D73A49;--shiki-dark:#F97583">DESC</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">LIMIT</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> 1</span><span style="color:#24292E;--shiki-dark:#E1E4E8">;</span></span>
+<span class="line"></span></code></pre></article><article class="hljs-demo"><header><div><h2>highlight.js</h2><p>备选 · GitHub / GitHub Dark</p></div><button class="copy" type="button" aria-label="复制 highlight.js sql 代码">复制</button></header><pre class="hljs"><code><span class="hljs-keyword">SELECT</span>
+    snapshot_id,
+    payload,
+    refreshed_at,
+    <span class="hljs-keyword">CASE</span>
+        <span class="hljs-keyword">WHEN</span> fresh_until <span class="hljs-operator">&gt;</span> :request_time <span class="hljs-keyword">THEN</span> <span class="hljs-string">&#x27;fresh&#x27;</span>
+        <span class="hljs-keyword">ELSE</span> <span class="hljs-string">&#x27;stale&#x27;</span>
+    <span class="hljs-keyword">END</span> <span class="hljs-keyword">AS</span> freshness
+<span class="hljs-keyword">FROM</span> dashboard_snapshots
+<span class="hljs-keyword">WHERE</span> store_id <span class="hljs-operator">=</span> :store_id
+  <span class="hljs-keyword">AND</span> report_date <span class="hljs-operator">=</span> :report_date
+  <span class="hljs-keyword">AND</span> usable_until <span class="hljs-operator">&gt;</span> :request_time
+<span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> refreshed_at <span class="hljs-keyword">DESC</span>, snapshot_id <span class="hljs-keyword">DESC</span>
+LIMIT <span class="hljs-number">1</span>;
+</code></pre></article><article class="prism-demo"><header><div><h2>Prism</h2><p>插件丰富 · Default / Tomorrow</p></div><button class="copy" type="button" aria-label="复制 Prism sql 代码">复制</button></header><pre class="language-sql"><code class="language-sql"><span class="token keyword">SELECT</span>
+    snapshot_id<span class="token punctuation">,</span>
+    payload<span class="token punctuation">,</span>
+    refreshed_at<span class="token punctuation">,</span>
+    <span class="token keyword">CASE</span>
+        <span class="token keyword">WHEN</span> fresh_until <span class="token operator">></span> :request_time <span class="token keyword">THEN</span> <span class="token string">'fresh'</span>
+        <span class="token keyword">ELSE</span> <span class="token string">'stale'</span>
+    <span class="token keyword">END</span> <span class="token keyword">AS</span> freshness
+<span class="token keyword">FROM</span> dashboard_snapshots
+<span class="token keyword">WHERE</span> store_id <span class="token operator">=</span> :store_id
+  <span class="token operator">AND</span> report_date <span class="token operator">=</span> :report_date
+  <span class="token operator">AND</span> usable_until <span class="token operator">></span> :request_time
+<span class="token keyword">ORDER</span> <span class="token keyword">BY</span> refreshed_at <span class="token keyword">DESC</span><span class="token punctuation">,</span> snapshot_id <span class="token keyword">DESC</span>
+<span class="token keyword">LIMIT</span> <span class="token number">1</span><span class="token punctuation">;</span>
+</code></pre></article></div></section><section class="language-panel" data-language="json" hidden><div class="grid"><article class="current"><header><div><h2>当前墨页</h2><p>仅底色与边框 · 无语法高亮</p></div><button class="copy" type="button" aria-label="复制 当前墨页 json 代码">复制</button></header><pre><code>{
+  &quot;sales&quot;: {
+    &quot;orderCount&quot;: 42,
+    &quot;revenueMinor&quot;: 129900,
+    &quot;currency&quot;: &quot;USD&quot;
+  },
+  &quot;stock&quot;: {
+    &quot;availableUnits&quot;: 318
+  },
+  &quot;missingModules&quot;: [&quot;ads&quot;]
+}
+</code></pre></article><article class="shiki-demo"><header><div><h2>Shiki</h2><p>推荐 · GitHub Light / Dark</p></div><button class="copy" type="button" aria-label="复制 Shiki json 代码">复制</button></header><pre class="shiki shiki-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" tabindex="0"><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  "sales"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    "orderCount"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">42</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    "revenueMinor"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">129900</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    "currency"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">"USD"</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  "stock"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    "availableUnits"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">318</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  "missingModules"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: [</span><span style="color:#032F62;--shiki-dark:#9ECBFF">"ads"</span><span style="color:#24292E;--shiki-dark:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre></article><article class="hljs-demo"><header><div><h2>highlight.js</h2><p>备选 · GitHub / GitHub Dark</p></div><button class="copy" type="button" aria-label="复制 highlight.js json 代码">复制</button></header><pre class="hljs"><code><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;sales&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;orderCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">42</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;revenueMinor&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">129900</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;currency&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;USD&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;stock&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;availableUnits&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">318</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;missingModules&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;ads&quot;</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre></article><article class="prism-demo"><header><div><h2>Prism</h2><p>插件丰富 · Default / Tomorrow</p></div><button class="copy" type="button" aria-label="复制 Prism json 代码">复制</button></header><pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"sales"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"orderCount"</span><span class="token operator">:</span> <span class="token number">42</span><span class="token punctuation">,</span>
+    <span class="token property">"revenueMinor"</span><span class="token operator">:</span> <span class="token number">129900</span><span class="token punctuation">,</span>
+    <span class="token property">"currency"</span><span class="token operator">:</span> <span class="token string">"USD"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">"stock"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"availableUnits"</span><span class="token operator">:</span> <span class="token number">318</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">"missingModules"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"ads"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></article></div></section><p class="note">本文件完全离线运行，无 CDN 或远程字体。预览版本：Shiki 4.6.0 · highlight.js 11.12.0 · Prism 1.30.0。此页用于方案比较，尚未接入墨页产品。2026-11-11。</p><p class="note">官方资料：<a href="https://shiki.style/">Shiki</a> · <a href="https://highlightjs.org/">highlight.js</a> · <a href="https://prismjs.com/">Prism</a></p></main>
+<script>
+document.querySelector('select').onchange = (event) => document.documentElement.dataset.theme = event.target.value;
+for (const button of document.querySelectorAll('[data-lang]')) button.onclick = () => {
+  for (const tab of document.querySelectorAll('[data-lang]')) tab.setAttribute('aria-pressed', String(tab === button));
+  for (const panel of document.querySelectorAll('.language-panel')) panel.hidden = panel.dataset.language !== button.dataset.lang;
+};
+for (const button of document.querySelectorAll('.copy')) button.onclick = async () => {
+  try { await navigator.clipboard.writeText(button.closest('article').querySelector('code').textContent); button.textContent = '已复制'; }
+  catch { button.textContent = '请选中代码复制'; }
+  setTimeout(() => button.textContent = '复制', 1800);
+};
+</script></html>

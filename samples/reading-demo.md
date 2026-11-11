@@ -61,6 +61,27 @@ note over Reader: 图表在本机绘制
 
 > 第一版专注于阅读，打开文件不会改写它。
 
+## 代码高亮
+
+代码块随界面切换浅色或深色，可点击右上角「复制」取得代码原文。
+
+```javascript
+async function loadDashboard({ fetchSales, fetchAds, fetchStock }) {
+  const [sales, ads, stock] = await Promise.allSettled([
+    fetchSales(), fetchAds(), fetchStock(),
+  ]);
+  if (sales.status === "rejected") {
+    return { status: 503, body: { code: "SALES_UNAVAILABLE" } };
+  }
+  const body = { sales: sales.value, missingModules: [] };
+  for (const [name, result] of [["ads", ads], ["stock", stock]]) {
+    if (result.status === "fulfilled") body[name] = result.value;
+    else body.missingModules.push(name);
+  }
+  return { status: 200, body };
+}
+```
+
 ```text
 Markdown 源码 → 排版 → 阅读
 ```

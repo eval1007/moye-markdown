@@ -18,6 +18,7 @@ Moye is a local Markdown reader for Windows with WSL folder browsing, Mermaid an
 - 「打开文件夹」显示左侧文件树，点击 Markdown 文件后在右侧阅读。点「WSL 路径」可选择发行版并输入 Linux 绝对路径，也可粘贴 WSL 的 Windows 网络路径。输入时列出匹配的文件夹和 Markdown 文件；可点击或用方向键配合 Enter / Tab 补全，再点「打开」。
 - 相对图片和 Markdown 链接以当前文档所在目录解析，允许读取已打开的根目录内的文件；没有打开根目录时限于当前文档目录。外部链接交给默认浏览器。预览不加载远程图片。
 - `mermaid` 和 `plantuml` 代码块直接在正文绘图，随阅读界面切换浅色或深色。PlantUML 支持内置主题；依赖外部 `!include` 文件或未打包标准库的图需先展开依赖。
+- 普通代码块使用 Shiki 的 GitHub 浅色/深色主题，提供语言标签和「复制」。内置 JavaScript/TypeScript（含 JSX/TSX）、JSON/JSONC、SQL、Shell、PowerShell、Python、Java、Go、Rust、HTML/CSS/XML、YAML/TOML、Dockerfile、Diff 和 Markdown 高亮；未标语言或不支持的语言保留原文显示。语法与主题随应用打包，阅读不依赖在线服务。
 - 阅读时用 Ctrl+F 查找当前正文，Enter / Shift+Enter 跳到下一处 / 上一处。打开文件夹后用 Ctrl+P 模糊搜索文件名或相对路径（按相关度排序）、Ctrl+Shift+F 搜 Markdown 正文，也可从文件树点击「搜索文件夹」。打开结果会展开文件树中的对应路径；正文命中会跳到相应内容块并高亮可见文字。输入关键词后自动搜索；正文结果分批显示，修改关键词、切换搜索类型或关闭弹窗会取消旧查询。文件夹搜索在本地执行，最多显示前 100 条结果，跳过隐藏目录和 node_modules，不受 .gitignore 影响。正文按不区分大小写的原样关键词匹配，跳过超过 8 MiB 的文件。文件名路径缓存在内存并监听目录变化；每次打开搜索会重新确认文件列表，UNC/WSL 路径在搜索时最多复用 5 秒缓存。
 
 ## 开发与构建

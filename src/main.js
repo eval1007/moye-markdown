@@ -230,8 +230,7 @@ function showFolder(next) {
   updateSidebar();
 }
 
-function showDocument(doc, anchor) {
-  const rendered = renderMarkdown(doc.text);
+function showDocument(doc, rendered, anchor) {
   const version = ++generation;
   current = doc;
   readerFind.close();
@@ -298,7 +297,9 @@ async function load(getDocument, { anchor, onError = report, remember = false } 
       if (remember) recents.add({ kind: 'folder', path: openedFolder.id, name: openedFolder.name });
     } else {
       const doc = result.kind === 'document' ? result.document : result;
-      showDocument(doc, anchor);
+      const rendered = await renderMarkdown(doc.text);
+      if (request !== opening) return false;
+      showDocument(doc, rendered, anchor);
       if (remember && doc.documentId) recents.add({ kind: 'document', path: doc.documentId, name: doc.name });
     }
     return true;
@@ -398,6 +399,20 @@ article.addEventListener('click', (event) => {
     load(() => openRelated(path, current.documentId), { anchor: href.split('#')[1] });
   } else {
     report('此链接无法在阅读器内打开。');
+  }
+});
+
+article.addEventListener('click', async (event) => {
+  const button = event.target.closest('button.copy-code');
+  if (!button) return;
+  const block = button.closest('.code-block');
+  try {
+    await navigator.clipboard.writeText(block.querySelector('pre code').textContent);
+    button.textContent = '已复制';
+    block.querySelector('.copy-status').textContent = '代码已复制';
+  } catch {
+    button.textContent = '复制失败';
+    block.querySelector('.copy-status').textContent = '无法访问剪贴板，请选中代码后复制。';
   }
 });
 
