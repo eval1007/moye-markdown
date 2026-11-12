@@ -111,14 +111,18 @@ export function renderDiagram({ language, source }, theme, layout, isEr, isCurre
       sequence: { useMaxWidth: false, actorFontFamily: fontStack, messageFontFamily: fontStack, noteFontFamily: fontStack },
     });
     const id = `moye-mermaid-${++sequence}`;
+    // Keep Mermaid's measuring DOM out of the page layout without disabling SVG measurement.
+    const host = document.createElement('div');
+    host.style.cssText = 'position: fixed; top: 0; left: -100000px; width: 100%; visibility: hidden;';
+    host.setAttribute('aria-hidden', 'true');
+    document.body.append(host);
     try {
-      const { svg } = await mermaid.render(id, source);
+      const { svg } = await mermaid.render(id, source, host);
       if (!isCurrent()) return null;
       const element = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
       return prepareSvg(element, fontRule, layout);
     } finally {
-      // Some Mermaid errors leave their temporary rendering host in the DOM.
-      document.getElementById(`d${id}`)?.remove();
+      host.remove();
     }
   });
   renderTail = task.catch(() => {});
