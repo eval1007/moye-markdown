@@ -15,6 +15,9 @@ import { mountWorkspaceSearch } from './workspace-search.js';
 const $ = (selector) => document.querySelector(selector);
 const article = $('#article');
 const reader = $('#reader');
+const preview = $('#markdown-preview');
+const source = $('#markdown-source');
+const documentView = $('#document-view');
 const readerFind = mountDocumentFind($('#document-find'), article, reader);
 const notice = $('#notice');
 const fileInput = $('#file-input');
@@ -206,6 +209,21 @@ function updateSidebar() {
   $('#show-tree').setAttribute('aria-pressed', String(showFiles));
   $('#show-outline').setAttribute('aria-pressed', String(!showFiles));
   $('#find-document').hidden = !current;
+  documentView.hidden = !current;
+}
+
+/** Switches the read-only document view and clears matches from the previous view. */
+function setDocumentView(view) {
+  readerFind.close();
+  closeDiagram();
+  const showSource = view === 'source';
+  preview.hidden = showSource;
+  source.hidden = !showSource;
+  article.classList.toggle('source-view', showSource);
+  for (const button of documentView.querySelectorAll('[data-view]')) {
+    button.setAttribute('aria-pressed', String(button.dataset.view === view));
+  }
+  reader.scrollTop = 0;
 }
 
 function showFolder(next) {
@@ -215,7 +233,8 @@ function showFolder(next) {
   closeDiagram();
   for (const url of pendingAssets) releaseUrl(url);
   panels = [];
-  article.replaceChildren();
+  preview.replaceChildren();
+  source.textContent = '';
   article.hidden = true;
   $('#outline').replaceChildren();
   outlineCount = 0;
@@ -253,7 +272,9 @@ function showDocument(doc, rendered, anchor) {
     img.removeAttribute('src');
     return [img, path];
   });
-  article.replaceChildren(template.content);
+  preview.replaceChildren(template.content);
+  source.textContent = doc.text;
+  setDocumentView('preview');
   article.hidden = false;
   $('#empty').hidden = true;
   $('#file-name').textContent = doc.workspacePath || doc.name;
@@ -289,7 +310,10 @@ function scrollToHeading(anchor) {
   try {
     const id = decodeURIComponent(anchor);
     const target = document.getElementById(id) ?? document.getElementById(`heading-${id}`);
-    if (target && article.contains(target)) target.scrollIntoView({ block: 'start' });
+    if (target && preview.contains(target)) {
+      if (preview.hidden) setDocumentView('preview');
+      target.scrollIntoView({ block: 'start' });
+    }
   } catch { /* Malformed fragments do not navigate. */ }
 }
 
@@ -430,6 +454,10 @@ $('#empty-open').onclick = chooseFile;
 $('#open-folder').onclick = $('#empty-folder').onclick = () => load(pickFolder, { remember: true });
 $('#open-wsl').onclick = showWslDialog;
 $('#find-document').onclick = () => readerFind.show();
+documentView.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-view]');
+  if (button && button.getAttribute('aria-pressed') !== 'true') setDocumentView(button.dataset.view);
+});
 $('#open-folder-search').onclick = () => showWorkspaceSearch();
 $('#show-tree').onclick = () => { sidebarMode = 'files'; updateSidebar(); };
 $('#show-outline').onclick = () => { sidebarMode = 'outline'; updateSidebar(); };

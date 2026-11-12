@@ -25,6 +25,10 @@
     </details>
     <div class="current-file" id="file-name">未打开文档</div>
     <div class="document-actions">
+      <div id="document-view" class="document-view" role="group" aria-label="文档显示方式" hidden>
+        <button type="button" data-view="preview" aria-pressed="true" aria-controls="markdown-preview">预览</button>
+        <button type="button" data-view="source" aria-pressed="false" aria-controls="markdown-source">原文</button>
+      </div>
       <button id="find-document" class="text-icon-button" title="在当前文档中查找 (Ctrl+F)" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>查找</button>
       <div class="theme-switch" id="theme-switch" role="group" aria-label="外观">
         <button type="button" data-theme-value="system" aria-pressed="true" title="跟随系统" aria-label="跟随系统">
@@ -72,7 +76,10 @@
         <p id="empty-description">拖入 Markdown 文件，阅读正文、图片和 Mermaid 图。</p>
         <div class="empty-actions" id="empty-actions"><button id="empty-folder" class="primary" hidden>选择文件夹</button><button id="empty-open">选择文件</button><button id="open-sample">查看示例</button></div>
       </section>
-      <article id="article" class="prose" hidden></article>
+      <article id="article" class="prose" hidden>
+        <div id="markdown-preview"></div>
+        <pre id="markdown-source" aria-label="Markdown 原文" hidden></pre>
+      </article>
     </main>
   </div>
   <div id="drop-target" class="drop-target" hidden><div>松开以打开文件或文件夹</div></div>
