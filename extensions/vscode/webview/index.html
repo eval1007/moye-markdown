@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moye 预览</title>
+</head>
+<body>
+  <main id="reader">
+    <p id="notice" class="notice" role="status" hidden></p>
+    <article id="article" class="prose"><div id="markdown-preview"></div></article>
+  </main>
+  <dialog id="diagram-dialog" aria-labelledby="diagram-title">
+    <div class="diagram-toolbar">
+      <h2 id="diagram-title">图表</h2>
+      <p class="diagram-tip">滚轮缩放 · 拖动平移</p>
+      <div class="diagram-controls">
+        <button id="zoom-out" aria-label="缩小">−</button><output id="zoom-value" aria-label="缩放比例">100%</output><button id="zoom-in" aria-label="放大">+</button>
+        <button id="zoom-actual">100%</button><button id="zoom-fit">适应窗口</button><button id="diagram-close" autofocus>关闭 <kbd>Esc</kbd></button>
+      </div>
+    </div>
+    <div id="diagram-viewport" class="diagram-viewport" tabindex="0" aria-label="图表画布"><img id="diagram-image" alt="放大的图表"></div>
+  </dialog>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

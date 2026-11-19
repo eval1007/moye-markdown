@@ -1,0 +1,5 @@
+webview/**
+vite.config.js
+test/**
+**/*.vsix
+**/.DS_Store

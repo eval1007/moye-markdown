@@ -2,3 +2,7 @@
 /dist/
 /src-tauri/target/
 /src-tauri/gen/schemas/
+/extensions/vscode/media/
+/extensions/vscode/LICENSE
+/extensions/vscode/icon.png
+/dist-vscode/

@@ -1,0 +1,8 @@
+/* Keep Moye's document and diagram appearance inside the editor's preview viewport. */
+body { padding: 0; color: var(--ink); background: var(--bg); font-family: var(--ui); }
+#reader { height: 100dvh; }
+.prose { min-height: calc(100dvh - 80px); }
+@media (max-width: 540px) {
+  .figure-toolbar { flex-wrap: wrap; }
+  .diagram-toolbar { flex-wrap: wrap; height: auto; padding: 8px; }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "moye-preview",
+  "displayName": "Moye · Markdown Preview",
+  "description": "Markdown 阅读预览，保留 Moye 的 Mermaid/PlantUML 排版、硬直角连线和大图查看，支持 WSL。",
+  "version": "0.1.0",
+  "publisher": "eval1007",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/eval1007/moye-markdown.git" },
+  "engines": { "vscode": "^1.90.0" },
+  "categories": ["Visualization", "Other"],
+  "keywords": ["markdown", "mermaid", "plantuml", "preview", "wsl"],
+  "icon": "icon.png",
+  "main": "./extension.cjs",
+  "extensionKind": ["workspace"],
+  "capabilities": { "untrustedWorkspaces": { "supported": true }, "virtualWorkspaces": true },
+  "contributes": {
+    "commands": [
+      { "command": "moye.openPreview", "title": "Moye: 打开 Markdown 预览", "icon": "$(open-preview)" },
+      { "command": "moye.refreshPreview", "title": "Moye: 刷新预览", "icon": "$(refresh)" }
+    ],
+    "menus": {
+      "editor/title": [
+        { "command": "moye.openPreview", "when": "editorLangId == markdown && activeCustomEditorId != moye.preview", "group": "navigation" },
+        { "command": "moye.refreshPreview", "when": "activeCustomEditorId == moye.preview", "group": "navigation" }
+      ],
+      "explorer/context": [{ "command": "moye.openPreview", "when": "resourceExtname =~ /^\\.(md|markdown|mdown)$/i", "group": "navigation" }]
+    },
+    "customEditors": [{
+      "viewType": "moye.preview",
+      "displayName": "Moye 预览",
+      "selector": [{ "filenamePattern": "*.md" }, { "filenamePattern": "*.markdown" }, { "filenamePattern": "*.mdown" }],
+      "priority": "option"
+    }]
+  }
+}
