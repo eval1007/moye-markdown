@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>Diagram viewer regression</title>
+<style>
+/* Match the image constraints injected by VS Code's webview host. */
+@layer vscode-default { img, video { max-width: 100%; max-height: 100%; } }
+</style>
+<link rel="stylesheet" href="../src/style.css">
+<body>
+<pre id="result">Running…</pre>
+<script type="module">
+// Run with `npm run dev`, then open /tests/zoom.browser.html in a browser.
+const template = new DOMParser().parseFromString(
+  await (await fetch('../extensions/vscode/webview/index.html')).text(), 'text/html',
+);
+document.body.append(template.querySelector('#diagram-dialog'));
+const { showDiagram, closeDiagram } = await import('../src/zoom.js');
+const dialog = document.querySelector('#diagram-dialog');
+const viewport = document.querySelector('#diagram-viewport');
+const image = document.querySelector('#diagram-image');
+const label = document.querySelector('#zoom-value');
+const data = { width: 1000, height: 2000 };
+const url = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="2000"><rect width="1000" height="2000" fill="steelblue"/></svg>');
+const results = [];
+
+function check(condition, description) {
+  if (!condition) throw new Error(description);
+  results.push(description);
+}
+
+function wheel(target, deltaY = -120, deltaX = 0) {
+  const rect = target.getBoundingClientRect();
+  const event = new WheelEvent('wheel', {
+    bubbles: true, cancelable: true, deltaY, deltaX,
+    clientX: rect.x + rect.width / 2, clientY: rect.y + rect.height / 2,
+  });
+  target.dispatchEvent(event);
+  return event;
+}
+
+try {
+  showDiagram(data, url, 'ER');
+  for (const target of [viewport, image]) {
+    const before = parseFloat(image.style.width);
+    const event = wheel(target);
+    check(parseFloat(image.style.width) > before, `Wheel zooms over ${target.id || target.className}`);
+    check(event.defaultPrevented, 'Canvas wheel prevents document scrolling');
+  }
+  const before = parseFloat(image.style.width);
+  wheel(viewport, 120);
+  check(parseFloat(image.style.width) < before, 'Wheel down zooms out');
+  document.querySelector('#zoom-actual').click();
+  let actual = image.getBoundingClientRect();
+  check(Math.abs(actual.height - data.height) < 1, '100% renders the full SVG height beyond the viewport');
+  check(Math.abs(actual.width / actual.height - data.width / data.height) < 0.001, 'Rendered image keeps its aspect ratio');
+  for (let index = 0; index < 15; ++index) wheel(viewport);
+  actual = image.getBoundingClientRect();
+  check(label.value === '800%' && Math.abs(actual.height - data.height * 8) < 1, '800% enlarges actual content, not only the image box width');
+
+  const closed = new Promise(resolve => dialog.addEventListener('close', resolve, { once: true }));
+  closeDiagram();
+  await closed;
+  const event = wheel(document.body);
+  check(!image.hasAttribute('src') && !event.defaultPrevented, 'Closing releases wheel input to the document');
+  window.testResult = { passed: true, results };
+} catch (error) {
+  window.testResult = { passed: false, results, error: error.stack };
+} finally {
+  closeDiagram();
+  document.querySelector('#result').textContent = JSON.stringify(window.testResult, null, 2);
+}
+</script>
+</body>
+</html>
