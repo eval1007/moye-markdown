@@ -2,7 +2,7 @@
   "name": "moye-preview",
   "displayName": "Moye · Markdown Preview",
   "description": "Markdown 阅读预览，保留 Moye 的 Mermaid/PlantUML 排版、硬直角连线和大图查看，支持 WSL。",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "publisher": "eval1007",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/eval1007/moye-markdown.git" },

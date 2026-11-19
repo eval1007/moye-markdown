@@ -8,7 +8,7 @@
     "dev": "vite --host 0.0.0.0 --port 1420 --strictPort",
     "build": "vite build",
     "build:vscode": "node scripts/build-vscode.mjs",
-    "package:vscode": "npm run build:vscode && cd extensions/vscode && vsce package --no-dependencies --out ../../dist-vscode/moye-preview-0.1.0.vsix",
+    "package:vscode": "npm run build:vscode && cd extensions/vscode && vsce package --no-dependencies --out ../../dist-vscode/moye-preview-0.1.2.vsix",
     "tauri": "tauri"
   },
   "dependencies": {

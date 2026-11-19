@@ -12,7 +12,7 @@
 
 ## 使用
 
-1. 安装 VSIX：命令面板执行 **Extensions: Install from VSIX…**，选择 `moye-preview-0.1.0.vsix`。
+1. 安装 VSIX：命令面板执行 **Extensions: Install from VSIX…**，选择 `moye-preview-0.1.2.vsix`。
 2. 打开 Markdown，点击编辑器右上角的预览图标，或执行 **Moye: 打开 Markdown 预览**。也可以从资源管理器右键打开。
 3. 通过 **Reopen Editor With… → Moye 预览** 在当前标签页阅读。
 
