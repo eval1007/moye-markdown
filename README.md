@@ -2,9 +2,15 @@
 
 Windows 本地 Markdown 阅读器。打开或拖入 Markdown 文件或文件夹，阅读带目录、表格、相对图片、Mermaid 和 PlantUML 图的文档。图表默认采用蓝色节点和细灰连线，Mermaid 流程图与 ER 图默认使用 ELK；可切到原始大小，或点击「放大」铺满应用窗口，再缩放、拖动和适应窗口，按 Esc 返回正文。主题和最近打开的文件/文件夹路径仅保存在本机，文档始终以只读方式打开。
 
-**[下载 Windows x64 版](https://github.com/eval1007/moye-markdown/releases/latest)** · [反馈问题或建议](https://github.com/eval1007/moye-markdown/issues)
+**[下载 Windows x64 版](https://github.com/eval1007/moye-markdown/releases/latest)** · **[下载 VS Code 插件](https://github.com/eval1007/moye-markdown/releases/download/vscode-v0.1.0/moye-preview-0.1.0.vsix)** · [反馈问题或建议](https://github.com/eval1007/moye-markdown/issues)
 
 Moye is a local Markdown reader for Windows with WSL folder browsing, Mermaid and PlantUML diagrams, and text search.
+
+## VS Code 预览插件
+
+Moye 也提供只负责 Markdown 预览的 VS Code 插件，保留相同的正文、Mermaid/PlantUML 风格与大图查看；文件树、搜索和编辑使用 VS Code。支持 Remote WSL 工作区及 Windows 读取 WSL 共享路径。安装后执行 **Moye: 打开 Markdown 预览**，或从 **Reopen Editor With…** 选择 **Moye 预览**。
+
+从 [GitHub Release](https://github.com/eval1007/moye-markdown/releases/tag/vscode-v0.1.0) 下载 VSIX，执行 **Extensions: Install from VSIX…** 安装。自行构建时，在仓库根目录运行 `npm ci`、`npm run package:vscode`，产物位于 `dist-vscode/`。详细用法及共享路径文件监听的限制见[插件说明](extensions/vscode/README.md)。
 
 ![墨页显示 Markdown 正文和 Mermaid ER 图，示例数据为虚构内容](docs/images/er-preview.png)
 
